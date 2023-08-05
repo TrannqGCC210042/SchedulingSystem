@@ -9,6 +9,24 @@ namespace SchedulingSystem
     internal class ManageDoctor
     {
         private List<Doctor> lstDoctors;
+        private static ManageDoctor instance;
+        private static readonly object lockObj = new object();
+        public static ManageDoctor Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (lockObj)
+                    {
+                        if (instance == null)
+                            instance = new ManageDoctor();
+                    }
+                }
+                return instance;
+            }
+        }
+        //private List<Doctor> lstDoctors;
         public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
         public ManageDoctor()
         {

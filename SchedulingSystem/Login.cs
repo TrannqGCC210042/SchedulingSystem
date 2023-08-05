@@ -25,13 +25,13 @@ namespace SchedulingSystem
         {
             if (username == "admin" && password == "1")
             {
-                ManageDoctor manageDoctor = new ManageDoctor();
-                ManagePatient managePatient = new ManagePatient();
-                ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
-                ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
+                //ManageDoctor manageDoctor = new ManageDoctor();
+                //ManagePatient managePatient = new ManagePatient();
+                //ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
+                //ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
 
-                MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
-                m.PrintMenu();
+                //MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
+                //m.PrintMenu();
             }       
 
             return true;

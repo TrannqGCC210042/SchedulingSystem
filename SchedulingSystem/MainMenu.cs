@@ -8,20 +8,21 @@ namespace SchedulingSystem
 {
     internal class MainMenu
     {
-        ManageDoctor manageDoctor { get; set; }
-        ManagePatient managePatient { get; set; }
-        ManageAppointmentRecord manageAppointment { get; set; }
-        ManageMedicalSpecialty manageMedical { get; set;    }
-        public MainMenu(ManageDoctor manageDoctor, 
-                        ManagePatient managePatient, 
-                        ManageAppointmentRecord manageAppointment, 
-                        ManageMedicalSpecialty manageMedical) 
-        { 
-            this.manageDoctor = manageDoctor;
-            this.managePatient = managePatient;
-            this.manageAppointment = manageAppointment;
-            this.manageMedical = manageMedical;
-        }
+        //ManageDoctor manageDoctor { get; set; }
+        //ManagePatient managePatient { get; set; }
+        //ManageAppointmentRecord manageAppointment { get; set; }
+        //ManageMedicalSpecialty manageMedical { get; set;    }
+        //public MainMenu(ManageDoctor manageDoctor, 
+        //                ManagePatient managePatient, 
+        //                ManageAppointmentRecord manageAppointment, 
+        //                ManageMedicalSpecialty manageMedical) 
+        //{ 
+        //    this.manageDoctor = manageDoctor;
+        //    this.managePatient = managePatient;
+        //    this.manageAppointment = manageAppointment;
+        //    this.manageMedical = manageMedical;
+        //}
+        public MainMenu() { }
         public void PrintMenu()
         {
             try
@@ -54,23 +55,23 @@ namespace SchedulingSystem
                     break;
                 case 1:
                     Console.Clear();
-                    DoctorMenu doctorMenu = new DoctorMenu(manageDoctor);
+                    DoctorMenu doctorMenu = new DoctorMenu();
                     doctorMenu.PrintMenu();
                     break;
                 case 2:
                     Console.Clear();
-                    PatientMenu patientMenu = new PatientMenu(managePatient);
-                    patientMenu.PrintMenu();
+                    //PatientMenu patientMenu = new PatientMenu(managePatient);
+                    //patientMenu.PrintMenu();
                     break;
                 case 3:
                     Console.Clear();
-                    AppointmentRecordMenu appointmentMenu = new AppointmentRecordMenu(manageAppointment);
-                    appointmentMenu.PrintMenu();
+                    //AppointmentRecordMenu appointmentMenu = new AppointmentRecordMenu(manageAppointment);
+                    //appointmentMenu.PrintMenu();
                     break;
                 case 4:
                     Console.Clear();
-                    MedicalSpecialtieMenu medicalMenu = new MedicalSpecialtieMenu(manageMedical);
-                    medicalMenu.PrintMenu();
+                    //MedicalSpecialtieMenu medicalMenu = new MedicalSpecialtieMenu(manageMedical);
+                    //medicalMenu.PrintMenu();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 4!");

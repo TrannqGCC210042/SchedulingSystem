@@ -10,12 +10,13 @@ namespace SchedulingSystem
     {
         static void Main(string[] args)
         {
-            ManageDoctor manageDoctor = new ManageDoctor();
-            ManagePatient managePatient = new ManagePatient();
-            ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
-            ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
+            //ManageDoctor manageDoctor = new ManageDoctor();
+            //ManagePatient managePatient = new ManagePatient();
+            //ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
+            //ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
 
-            MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
+            //MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
+            MainMenu m = new MainMenu();
             m.PrintMenu();
             Console.ReadLine();
         }

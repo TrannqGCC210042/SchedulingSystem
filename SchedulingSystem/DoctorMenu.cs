@@ -10,11 +10,11 @@ namespace SchedulingSystem
 
     internal class DoctorMenu : IManageMenu
     {   
-        ManageDoctor manageDoctor { get; set; }
-        public DoctorMenu(ManageDoctor manageDoctor)
-        {
-            this.manageDoctor = manageDoctor;
-        }
+        //ManageDoctor manageDoctor { get; set; }
+        //public DoctorMenu(ManageDoctor manageDoctor)
+        //{
+        //    this.manageDoctor = manageDoctor;
+        //}
 
         public void PrintMenu()
         {
@@ -45,23 +45,28 @@ namespace SchedulingSystem
                     break;
                 case 1:
                     Console.Clear();
-                    manageDoctor.Add();
+                    //manageDoctor.Add();
+                    ManageDoctor.Instance.Add();
                     break;
                 case 2:
                     Console.Clear();
-                    manageDoctor.Update();
+                    //manageDoctor.Update();
+                    ManageDoctor.Instance.Update();
                     break;
                 case 3:
                     Console.Clear();
-                    manageDoctor.Delete();
+                    //manageDoctor.Delete();
+                    ManageDoctor.Instance.Delete();
                     break;
                 case 4:
                     Console.Clear();
-                    manageDoctor.ShowAll();
+                    //manageDoctor.ShowAll();
+                    ManageDoctor.Instance.ShowAll();
                     break;
                 case 5:
                     Console.Clear();
-                    manageDoctor.Search();
+                    //manageDoctor.Search();
+                    ManageDoctor.Instance.Search();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 5!");
