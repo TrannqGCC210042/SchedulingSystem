@@ -7,62 +7,53 @@ using System.Threading.Tasks;
 namespace SchedulingSystem
 {
     internal class AppointmentRecordMenu : IManageMenu
-    {
-        ManageAppointmentRecord manageAppointmentRecord { get; set; }
-        public AppointmentRecordMenu(ManageAppointmentRecord manageAppointmentRecord) {
-            this.manageAppointmentRecord = manageAppointmentRecord;
-        }
-
+    {      
         public void PrintMenu()
         {
-            bool isExit;
-            do
-            {
-                Console.WriteLine("========= Manage Appointment Records =========");
-                Console.WriteLine("0. [Return menu]");
-                Console.WriteLine("1. Add Appointment Records");
-                Console.WriteLine("2. Update Appointment Records");
-                Console.WriteLine("3. Delete Appointment Records");
-                Console.WriteLine("4. Show All Appointment Records");
-                Console.WriteLine("5. Search Appointment Records");
-                isExit = SelectMenu();
-            }
-            while (!isExit);    
+            Console.WriteLine("========= Manage Appointment Records =========");
+            Console.WriteLine("0. [Return menu]");
+            Console.WriteLine("1. Schedule Appointment");
+            Console.WriteLine("2. Reschedule Appointment");
+            Console.WriteLine("3. Cancel Appointment");
+            Console.WriteLine("4. Display Appointment Details");
+            Console.WriteLine("5. Search Appointment Records");
         }
-        public bool SelectMenu()
+        public string SelectMenu()
         {
-            Console.Write(">>> Input your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            bool checkExit = false;
-
+            Console.Write("Please enter your choice: ");
+            string choice = Console.ReadLine();
+            string checkExit = "manageappointment";
             switch (choice)
             {
-                case 0:
-                    if (Confirm("return"))
-                        checkExit = true;
+                case "0":
+                    if (Confirm("return")) checkExit = "main";
                     break;
-                case 1:
+                case "1":
                     Console.Clear();
-                    manageAppointmentRecord.Add();
+                    ManageDoctor.Instance.Add();
+                    ManagePatient.Instance.Add();
+                    ManageAppointmentRecord.Instance.Add();
                     break;
-                case 2:
+                case "2":
                     Console.Clear();
-                    manageAppointmentRecord.Update();
+                    ManageAppointmentRecord.Instance.Update();
                     break;
-                case 3:
+                case "3":
                     Console.Clear();
-                    manageAppointmentRecord.Delete();
+                    ManageAppointmentRecord.Instance.Delete();
                     break;
-                case 4:
+                case "4":
                     Console.Clear();
-                    manageAppointmentRecord.ShowAll();
+                    ManageAppointmentRecord.Instance.DisplayInfor();
                     break;
-                case 5:
+                case "5":
                     Console.Clear();
-                    manageAppointmentRecord.Search();
+                    ManageAppointmentRecord.Instance.Search();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 5!");
+                    Console.WriteLine("[Press any key to enter again!]");
+                    Console.ReadLine();
                     break;
             }
             return checkExit;

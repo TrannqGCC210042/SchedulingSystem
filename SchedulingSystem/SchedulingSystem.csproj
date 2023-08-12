@@ -44,7 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Doctor.cs" />
-    <Compile Include="LibraryPacade.cs" />
+    <Compile Include="IManagement.cs" />
+    <Compile Include="IObserver.cs" />
+    <Compile Include="ISubject.cs" />
     <Compile Include="Login.cs" />
     <Compile Include="AppointmentRecordMenu.cs" />
     <Compile Include="DoctorMenu.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="ManagePatient.cs" />
     <Compile Include="MedicalSpecialty.cs" />
     <Compile Include="MainMenu.cs" />
+    <Compile Include="MenuFactory.cs" />
     <Compile Include="Patient.cs" />
     <Compile Include="PatientMenu.cs" />
     <Compile Include="Person.cs" />

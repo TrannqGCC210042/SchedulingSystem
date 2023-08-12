@@ -6,22 +6,44 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class ManageMedicalSpecialty
+    internal class ManageMedicalSpecialty : IManagement
     {
         private List<MedicalSpecialty> lstMedicalSpecialties;
         public IReadOnlyCollection<MedicalSpecialty> LstMedicalSpecialties { get { return lstMedicalSpecialties.AsReadOnly(); } }
         public ManageMedicalSpecialty() { if (lstMedicalSpecialties == null) lstMedicalSpecialties = new List<MedicalSpecialty>(); }
+
+        //Singleton
+        private static ManageMedicalSpecialty instance;
+        private static readonly object lockObj = new object();
+        public static ManageMedicalSpecialty Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (lockObj)
+                    {
+                        if (instance == null)
+                            instance = new ManageMedicalSpecialty();
+                    }
+                }
+                return instance;
+            }
+        }
         public void Delete()
         {
-            MedicalSpecialty m = FindMedicalId();
-            if (m == null)
-                Console.WriteLine("Cannot find this Medical Specialty ID!");
-            else
+            Console.WriteLine("========= Delete Medical Specialty =========");
+            if (!IsEmpty())
             {
-                if (Confirm("sure"))
+                MedicalSpecialty m = FindMedicalId();
+                if (m != null)
                 {
-                    lstMedicalSpecialties.Remove(m);
-                    Console.WriteLine($"Medical Specialty ID {m.Id} was deleted successfully!");
+                    DisplayInfor(m);
+                    if (Confirm("Sure"))
+                    {
+                        lstMedicalSpecialties.Remove(m);
+                        Console.WriteLine($"Medical Specialty ID {m.Id} was deleted successfully!");
+                    }
                 }
             }
             StopScreen();
@@ -29,42 +51,40 @@ namespace SchedulingSystem
 
         public void Update()
         {
-            MedicalSpecialty m = FindMedicalId();
-            if (m == null)
-                Console.WriteLine("Cannot find this Medical Specialty ID!");
-            else
+            Console.WriteLine("========= Update Medical Specialty =========");
+            if (!IsEmpty())
             {
-                Console.WriteLine("========= Update Information =========");
-                MedicalSpecialty newMedical = (MedicalSpecialty)InputInformation();
-
-                m.SpecialtyName = newMedical.SpecialtyName;
-                m.SpecialtyDescription = newMedical.SpecialtyDescription;
-
-                Console.WriteLine($"Medical Specialty ID {newMedical.Id} was updated!");
-
+                MedicalSpecialty m = FindMedicalId();
+                if (m != null)
+                {
+                    DisplayInfor(m);
+                    if (Confirm("Sure"))
+                    {
+                        MedicalSpecialty newMedical = (MedicalSpecialty)InputInformation();
+                        m.SpecialtyName = newMedical.SpecialtyName;
+                        m.SpecialtyDescription = newMedical.SpecialtyDescription;
+                        Console.WriteLine($"Medical Specialty ID {newMedical.Id} was updated!");
+                    }
+                }
             }
             StopScreen();
         }
         public MedicalSpecialty FindMedicalId()
         {
+            Console.WriteLine("[Press \"0\" to cancel.]");
             Console.Write("Choose Medical Specialty ID: ");
             int id = int.Parse(Console.ReadLine());
-
-            MedicalSpecialty medical = null;
+            if (id == 0) return null;
             foreach (var m in lstMedicalSpecialties)
             {
                 if (m.Id == id)
                 {
-                    Console.WriteLine($"========= Result: Medical Specialty ID {m.Id} =========");
-                    Console.WriteLine($"Medical Specialty ID: {m.Id}");
-                    Console.WriteLine($"Medical Specialty Name: {m.SpecialtyName}");
-                    Console.WriteLine($"Medical Specialty Description: {m.SpecialtyDescription}");
-                    Console.WriteLine();
-                    medical = m;
-                    break;
+                    Console.WriteLine($"A result was found!");
+                    return m;
                 }
             }
-            return medical;
+            Console.WriteLine("Cannot find this Medical Specialty ID!\n");
+            return FindMedicalId();
         }
 
         private static void StopScreen()
@@ -91,7 +111,7 @@ namespace SchedulingSystem
                 checkContinue = Confirm("continue");
             } while (checkContinue);
         }
-        public void ShowAll()
+        public void DisplayInfor()
         {
             Console.WriteLine("========= All Medical Specialty =========");
             foreach (var medical in lstMedicalSpecialties)
@@ -104,6 +124,15 @@ namespace SchedulingSystem
             StopScreen();
         }
 
+        public void DisplayInfor(MedicalSpecialty medicalSpecialty)
+        {
+            Console.WriteLine($"========= Result: Medical Specialty ID {medicalSpecialty.Id} =========");
+            Console.WriteLine($"Medical Specialty ID: {medicalSpecialty.Id}");
+            Console.WriteLine($"Medical Specialty Name: {medicalSpecialty.SpecialtyName}");
+            Console.WriteLine($"Medical Specialty Description: {medicalSpecialty.SpecialtyDescription}");
+            Console.WriteLine();
+        }
+
         public void Search()
         {
             FindMedicalId();
@@ -112,38 +141,54 @@ namespace SchedulingSystem
 
         public Object InputInformation()
         {
-            Console.Write("Medical Specialty Name: ");
-            string name = Console.ReadLine();
-            Console.Write("Medical Specialty Description: ");
-            string description = Console.ReadLine();
+            MedicalSpecialty medicalSpecialty = new MedicalSpecialty();
+            Name:
+            try
+            {
+                Console.Write("Medical Specialty Name: ");
+                medicalSpecialty.SpecialtyName = Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                goto Name;
+            }
 
-            return new MedicalSpecialty(name, description); 
+        Description:
+            try
+            {
+                Console.Write("Medical Specialty Description: ");
+                medicalSpecialty.SpecialtyDescription = Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                goto Description;
+            }
+
+            return new MedicalSpecialty(medicalSpecialty);
         }
 
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
+        }
 
-            Console.Clear();
-            return checkContinue;
+        public bool IsEmpty()
+        {
+            if (lstMedicalSpecialties.Count == 0)
+            {
+                Console.WriteLine("List Patient is Empty!");
+                return true;
+            }
+            return false;
         }
     }
 }

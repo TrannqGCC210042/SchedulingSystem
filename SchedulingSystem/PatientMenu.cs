@@ -8,64 +8,51 @@ namespace SchedulingSystem
 {
     internal class PatientMenu : IManageMenu
     {
-        ManagePatient managePatient { get; set; }
-        public PatientMenu(ManagePatient managePatient)
-        {
-            this.managePatient = managePatient;
-        }
-
         public void PrintMenu()
         {
-            bool isExit;
-            do
-            {
-                Console.WriteLine("========= Manage Patients =========");
-                Console.WriteLine("0. [Return menu]");
-                Console.WriteLine("1. Add Patients");
-                Console.WriteLine("2. Update Patients");
-                Console.WriteLine("3. Delete Patients");
-                Console.WriteLine("4. Show All Patients");
-                Console.WriteLine("5. Search Patients");
-                isExit = SelectMenu();
-            }
-            while (!isExit);
+            Console.WriteLine("========= Manage Patients =========");
+            Console.WriteLine("0. [Return menu]");
+            Console.WriteLine("1. Add Patients");
+            Console.WriteLine("2. Update Patients");
+            Console.WriteLine("3. Delete Patients");
+            Console.WriteLine("4. Show All Patients");
+            Console.WriteLine("5. Search Patients");
         }
-        public bool SelectMenu()
+        public string SelectMenu()
         {
-            Console.Write(">>> Input your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            bool checkExit = false;
+            Console.Write("Please enter your choice: ");
+            string choice = Console.ReadLine();
+            string checkExit = "managepatient";
 
             switch (choice)
             {
-                case 0:
-                    if (Confirm("return"))
-                    {
-                        checkExit = true;
-                    }
+                case "0":
+                    if (Confirm("return")) checkExit = "main";
                     break;
-                case 1:
+                case "1":
                     Console.Clear();
-                    managePatient.Add();
+                    ManagePatient.Instance.Add();
                     break;
-                case 2:
+                case "2":
                     Console.Clear();
-                    managePatient.Update();
+                    ManagePatient.Instance.Update();
                     break;
-                case 3:
+                case "3":
                     Console.Clear();
-                    managePatient.Delete();
+                    ManagePatient.Instance.Delete();
                     break;
-                case 4:
+                case "4":
                     Console.Clear();
-                    managePatient.ShowAll();
+                    ManagePatient.Instance.DisplayInfor();
                     break;
-                case 5:
+                case "5":
                     Console.Clear();
-                    managePatient.Search();
+                    ManagePatient.Instance.Search();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 5!");
+                    Console.WriteLine("[Press any key to enter again!]");
+                    Console.ReadLine();
                     break;
             }
             return checkExit;

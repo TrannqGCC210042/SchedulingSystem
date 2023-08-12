@@ -7,62 +7,51 @@ using System.Threading.Tasks;
 namespace SchedulingSystem
 {
     internal class MedicalSpecialtieMenu : IManageMenu
-    {
-        ManageMedicalSpecialty manageMedicalSpecialtie { get; set; }
-        public MedicalSpecialtieMenu(ManageMedicalSpecialty manageMedicalSpecialtie) {
-            this.manageMedicalSpecialtie = manageMedicalSpecialtie;
-        }
+    {        
         public void PrintMenu()
         {
-            bool isExit;
-            do
-            {
-                Console.WriteLine("========= Manage Medical Specialties =========");
-                Console.WriteLine("0. [Return menu]");
-                Console.WriteLine("1. Add Medical Specialties");
-                Console.WriteLine("2. Update Medical Specialties");
-                Console.WriteLine("3. Delete Medical Specialties");
-                Console.WriteLine("4. Show All Medical Specialties");
-                Console.WriteLine("5. Search Medical Specialties");
-                Console.WriteLine("[Press any key to exit the program]");
-                isExit = SelectMenu();
-            }
-            while (!isExit);
+            Console.WriteLine("========= Manage Medical Specialties =========");
+            Console.WriteLine("0. [Return menu]");
+            Console.WriteLine("1. Add Medical Specialties");
+            Console.WriteLine("2. Update Medical Specialties");
+            Console.WriteLine("3. Delete Medical Specialties");
+            Console.WriteLine("4. Show All Medical Specialties");
+            Console.WriteLine("5. Search Medical Specialties");
         }
-        public bool SelectMenu()
+        public string SelectMenu()
         {
-            Console.Write(">>> Input your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            bool checkExit = false;
-
+            Console.Write("Please enter your choice: ");
+            string choice = Console.ReadLine();
+            string checkExit = "managemedical";
             switch (choice)
             {
-                case 0:
-                    if (Confirm("return"))
-                        checkExit = true;
+                case "0":
+                    if (Confirm("return")) checkExit = "main";
                     break;
-                case 1:
+                case "1":
                     Console.Clear();
-                    manageMedicalSpecialtie.Add();
+                    ManageMedicalSpecialty.Instance.Add();
                     break;
-                case 2:
+                case "2":
                     Console.Clear();
-                    manageMedicalSpecialtie.Update();
+                    ManageMedicalSpecialty.Instance.Update();
                     break;
-                case 3:
+                case "3":
                     Console.Clear();
-                    manageMedicalSpecialtie.Delete();
+                    ManageMedicalSpecialty.Instance.Delete();
                     break;
-                case 4:
+                case "4":
                     Console.Clear();
-                    manageMedicalSpecialtie.ShowAll();
+                    ManageMedicalSpecialty.Instance.DisplayInfor();
                     break;
-                case 5:
+                case "5":
                     Console.Clear();
-                    manageMedicalSpecialtie.Search();
+                    ManageMedicalSpecialty.Instance.Search();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 5!");
+                    Console.WriteLine("[Press any key to enter again!]");
+                    Console.ReadLine();
                     break;
             }
             return checkExit;

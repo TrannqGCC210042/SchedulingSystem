@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal interface IManageMenu
+    internal interface IObserver
     {
-        void PrintMenu();
-        string SelectMenu();
-        bool Confirm(string message);
+        void update(AppointmentRecord appointmentRecord);
     }
 }

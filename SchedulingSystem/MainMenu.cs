@@ -6,75 +6,42 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class MainMenu
+    internal class MainMenu : IManageMenu
     {
-        //ManageDoctor manageDoctor { get; set; }
-        //ManagePatient managePatient { get; set; }
-        //ManageAppointmentRecord manageAppointment { get; set; }
-        //ManageMedicalSpecialty manageMedical { get; set;    }
-        //public MainMenu(ManageDoctor manageDoctor, 
-        //                ManagePatient managePatient, 
-        //                ManageAppointmentRecord manageAppointment, 
-        //                ManageMedicalSpecialty manageMedical) 
-        //{ 
-        //    this.manageDoctor = manageDoctor;
-        //    this.managePatient = managePatient;
-        //    this.manageAppointment = manageAppointment;
-        //    this.manageMedical = manageMedical;
-        //}
         public MainMenu() { }
         public void PrintMenu()
         {
-            try
-            {
-                bool isExit;
-                do
-                {
-                    Console.WriteLine("========= Menu =========");
-                    Console.WriteLine("0. [Exit]");
-                    Console.WriteLine("1. Manage Doctors");
-                    Console.WriteLine("2. Manage Patients");
-                    Console.WriteLine("3. Manage Appointment Records");
-                    Console.WriteLine("4. Manage Medical Specialties");
-                    isExit = SelectMenu();
-                }
-                while (!isExit);
-            }
-            catch (FormatException ex) { Console.WriteLine(ex.Message); }
+            Console.WriteLine("Appointment Booking System Menu");
+            Console.WriteLine("===============================");
+            Console.WriteLine("0. [Exit]");
+            Console.WriteLine("1. Manage Doctors");
+            Console.WriteLine("2. Manage Patients");
+            Console.WriteLine("3. Manage Appointment Records");
+            Console.WriteLine("4. Manage Medical Specialties");
         }
 
-        public bool SelectMenu()
+        public string SelectMenu()
         {
-            Console.Write(">>> Input your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            bool checkExit = false;
+            Console.Write("Please enter your choice: ");
+            string choice = Console.ReadLine();
+            string checkExit = "main";
             switch (choice)
             {
-                case 0:
-                    checkExit = Confirm("return");
+                case "0":
+                    if (Confirm("return")) Environment.Exit(0);
                     break;
-                case 1:
-                    Console.Clear();
-                    DoctorMenu doctorMenu = new DoctorMenu();
-                    doctorMenu.PrintMenu();
-                    break;
-                case 2:
-                    Console.Clear();
-                    //PatientMenu patientMenu = new PatientMenu(managePatient);
-                    //patientMenu.PrintMenu();
-                    break;
-                case 3:
-                    Console.Clear();
-                    //AppointmentRecordMenu appointmentMenu = new AppointmentRecordMenu(manageAppointment);
-                    //appointmentMenu.PrintMenu();
-                    break;
-                case 4:
-                    Console.Clear();
-                    //MedicalSpecialtieMenu medicalMenu = new MedicalSpecialtieMenu(manageMedical);
-                    //medicalMenu.PrintMenu();
-                    break;
+                case "1":
+                    return "managedoctor";
+                case "2":
+                    return "managepatient";
+                case "3":
+                    return "manageappointment";
+                case "4":
+                    return "managemedical";
                 default:
                     Console.WriteLine("Input must be from 0 to 4!");
+                    Console.WriteLine("[Press any key input again.]");
+                    Console.ReadKey();
                     break;
             }
             return checkExit;

@@ -9,11 +9,14 @@ namespace SchedulingSystem
     internal class Patient : Person
     {
         private static int nextId = 0;
-        public int Id { get { return nextId; } private set { } }
+        public int Id { get; private set; }
 
         public Patient() { }
-        public Patient(string name, string phone, string address): base(name, phone, address) {
-            Id = nextId++;
+        public Patient(Patient patient) {
+            Id = ++nextId;
+            Name = patient.Name;
+            Phone = patient.Phone;
+            Address = patient.Address;
         }
     }
 }

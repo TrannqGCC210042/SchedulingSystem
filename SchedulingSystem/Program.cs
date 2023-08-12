@@ -10,15 +10,15 @@ namespace SchedulingSystem
     {
         static void Main(string[] args)
         {
-            //ManageDoctor manageDoctor = new ManageDoctor();
-            //ManagePatient managePatient = new ManagePatient();
-            //ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
-            //ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
-
-            //MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
-            MainMenu m = new MainMenu();
-            m.PrintMenu();
-            Console.ReadLine();
+            IManageMenu Menu = MenuFactory.CreateMenu("main");
+            string menuType;
+            do
+            {
+                Console.Clear();
+                Menu.PrintMenu();
+                menuType = Menu.SelectMenu();
+                Menu = MenuFactory.CreateMenu(menuType);
+            }while (menuType != "");
         }
     }
 }

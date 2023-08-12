@@ -6,34 +6,45 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class ManageAppointmentRecord
+    internal class ManageAppointmentRecord : IManagement
     {
         private static List<AppointmentRecord> lstAppointmentRecords;
         public IReadOnlyCollection<AppointmentRecord> LstAppointmentRecords { get { return lstAppointmentRecords.AsReadOnly(); } }
-
-        private List<Doctor> lstDoctors;
-        public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
-
-        private static List<Patient> lstPatients;
-        public IReadOnlyCollection<Patient> ListPatients { get { return lstPatients.AsReadOnly(); } }
-
-        public ManageAppointmentRecord() { 
+        public ManageAppointmentRecord()
+        {
             if (lstAppointmentRecords == null) lstAppointmentRecords = new List<AppointmentRecord>();
-            if (lstDoctors == null) lstDoctors = new List<Doctor>();
-            if (lstPatients == null) lstPatients = new List<Patient>();
         }
 
+        private static ManageAppointmentRecord instance;
+        private static readonly object lockObj = new object();
+        public static ManageAppointmentRecord Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (lockObj)
+                    {
+                        if (instance == null)
+                            instance = new ManageAppointmentRecord();
+                    }
+                }
+                return instance;
+            }
+        }
         public void Delete()
         {
-            AppointmentRecord a = FindAppointmentlId();
-            if (a == null)
-                Console.WriteLine("Cannot find this Appointment Record ID!");
-            else
+            if (!IsEmpty())
             {
-                if (Confirm("sure"))
+                AppointmentRecord a = FindAppointmentlId();
+                if (a != null)
                 {
-                    lstAppointmentRecords.Remove(a);
-                    Console.WriteLine($"Appointment Record ID {a.Id} was deleted successfully!");
+                    DisplayInfor(a);
+                    if (Confirm("sure"))
+                    {
+                        lstAppointmentRecords.Remove(a);
+                        Console.WriteLine($"Appointment Record ID {a.Id} was deleted successfully!");
+                    }
                 }
             }
             StopScreen();
@@ -41,46 +52,42 @@ namespace SchedulingSystem
 
         public void Update()
         {
-            AppointmentRecord a = FindAppointmentlId();
-            if (a == null)
-                Console.WriteLine("Cannot find this Appointment Record ID!");
-            else
+            if (!IsEmpty())
             {
-                Console.WriteLine("========= Update Information =========");
-                AppointmentRecord newRecord = (AppointmentRecord)InputInformation();
+                AppointmentRecord a = FindAppointmentlId();
+                if (a != null)
+                {
+                    DisplayInfor(a);
+                    Console.WriteLine("========= Update Information =========");
+                    AppointmentRecord newRecord = (AppointmentRecord)InputInformation();
 
-                a.DoctorId = newRecord.DoctorId;
-                a.PatientId = newRecord.PatientId;
-                a.AppointmentDate = newRecord.AppointmentDate;
-                a.IsAppointment = newRecord.IsAppointment;
-                
+                    a.DoctorId = newRecord.DoctorId;
+                    a.PatientId = newRecord.PatientId;
+                    a.AppointmentDate = newRecord.AppointmentDate;
+                    a.IsAppointment = newRecord.IsAppointment;
 
-                Console.WriteLine($"Appointment Record ID {newRecord.Id} was updated!");
 
+                    Console.WriteLine($"Appointment Record ID {newRecord.Id} was updated!");
+                }
             }
             StopScreen();
         }
         public AppointmentRecord FindAppointmentlId()
         {
+            Console.WriteLine("[Press \"0\" to return to the menu.]");
             Console.Write("Choose Appointment Record ID: ");
             int id = int.Parse(Console.ReadLine());
 
-            AppointmentRecord appointment = null;
+            if (id == 0) return null;
             foreach (var a in LstAppointmentRecords)
             {
                 if (a.Id == id)
                 {
-                    Console.WriteLine($"========= Result: Appointment Record ID {a.Id} =========");
-                    Console.WriteLine($"Doctor ID: {a.DoctorId}");
-                    Console.WriteLine($"Patient Name: {a.PatientId}");
-                    Console.WriteLine($"Date: {a.AppointmentDate}");
-                    Console.WriteLine($"Status: {a.IsAppointment}");
-                    Console.WriteLine();
-                    appointment = a;
-                    break;
+                    return a;
                 }
             }
-            return appointment;
+            Console.WriteLine("Appointment Record ID cannot exist in the system.\n");
+            return FindAppointmentlId();
         }
 
         private static void StopScreen()
@@ -92,8 +99,7 @@ namespace SchedulingSystem
 
         public void Add()
         {
-            bool checkContinue;
-            do
+            if (!(ManageDoctor.Instance.IsEmpty() && ManagePatient.Instance.IsEmpty()))
             {
                 Console.WriteLine();
                 Console.WriteLine("========= Appointment Record Information =========");
@@ -104,21 +110,18 @@ namespace SchedulingSystem
 
                 Console.WriteLine();
                 Console.WriteLine("Do you want to continue adding a Appointment Record?");
-                checkContinue = Confirm("continue");
-            } while (checkContinue);
-        }
-        public void ShowAll()
-        {
-            Console.WriteLine("========= All Appointment Record =========");
-            foreach (var a in LstAppointmentRecords)
-            {
-                Console.WriteLine($"Doctor ID: {a.DoctorId}");
-                Console.WriteLine($"Patient Name: {a.PatientId}");
-                Console.WriteLine($"Date: {a.AppointmentDate}");
-                Console.WriteLine($"Status: {a.IsAppointment}");
-                Console.WriteLine();
+                if (Confirm("continue")) Add();
             }
             StopScreen();
+        }
+        public bool IsEmpty()
+        {
+            if (lstAppointmentRecords.Count == 0)
+            {
+                Console.WriteLine("List Doctor is Empty!");
+                return true;
+            }
+            return false;
         }
 
         public void Search()
@@ -129,65 +132,137 @@ namespace SchedulingSystem
 
         public Object InputInformation()
         {
-            Doctor doctor = null;
-            Patient patient = null;
-            DateTime date = DateTime.Now;
-            bool status = false;
-            while (doctor == null && patient == null){
-                ManageDoctor manageDoctor = new ManageDoctor();
-                doctor = manageDoctor.FindDoctorId();
+            AppointmentRecord appointmentRecord = new AppointmentRecord();
 
-                ManagePatient managePatient = new ManagePatient();
-                patient = managePatient.FindPatientId();
-
-                Console.Write("Date [dd/mm/yyyy]: ");
-                date = DateTime.Parse(Console.ReadLine());
-
-                status = ChooseStatus();
+        // User must choose a Doctor
+        ChooseDoctor:
+            Console.WriteLine("Choose Doctor by ID");
+            appointmentRecord.DoctorId = ManageDoctor.Instance.FindDoctorId();
+            if (appointmentRecord.DoctorId == null)
+            {
+                Console.Clear();
+                goto ChooseDoctor;
             }
-            return new AppointmentRecord(doctor, patient, date, status);
-        }
+            Console.WriteLine($"Doctor {appointmentRecord.DoctorId.Id} has been selected.");
+            Console.WriteLine("[next] >>");
+            Console.ReadKey();
+            Console.Clear();
+        // User must choose a Patient
+        ChoosePatient:
+            Console.WriteLine("Choose Patient by ID");
+            appointmentRecord.PatientId = ManagePatient.Instance.FindPatientId();
+            if (appointmentRecord.PatientId == null)
+            {
+                Console.Clear();
+                goto ChoosePatient;
+            }
+            Console.WriteLine($"Patient {appointmentRecord.PatientId.Id} has been selected.");
+            Console.WriteLine("[next] >>");
+            Console.ReadKey();
+            Console.Clear();
 
-        private bool ChooseStatus()
-        {
-            int chooseStatus;
-            do
+        DateTime:
+            try
+            {
+                Console.Write("Enter a date (dd-MM-yyyy): ");
+                appointmentRecord.AppointmentDate = DateTime.Parse(Console.ReadLine());
+                Console.WriteLine($"Date {appointmentRecord.AppointmentDate} has been selected.");
+                Console.WriteLine("[next] >>");
+                Console.ReadKey();
+                Console.Clear();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+                Console.ReadKey();
+                Console.Clear();
+                goto DateTime;
+            }
+
+        Status:
+            try
             {
                 Console.WriteLine("Status: ");
                 Console.WriteLine("0. Waiting ");
                 Console.WriteLine("1. Confirmed ");
                 Console.Write("Choose status [0 or 1]: ");
-                chooseStatus = int.Parse(Console.ReadLine());
-            } while (chooseStatus == 0 || chooseStatus == 1);
+                int chooseStatus = int.Parse(Console.ReadLine());
+                if (chooseStatus < 0 && chooseStatus > 1)
+                {
+                    Console.Clear() ;
+                    goto Status;
+                }
+                Console.WriteLine("[finish] >>");
+                if (chooseStatus == 1)
+                {
+                    appointmentRecord.IsAppointment = true;
+                }
+                else
+                {
+                    appointmentRecord.IsAppointment = false;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+                goto Status;
+            }
 
-            if (chooseStatus == 0) return false; 
-            else return true;            
+            DisplayInfor(appointmentRecord);
+
+            return appointmentRecord;
+        }
+
+        public void DisplayInfor(Patient patient)
+        {
+            Console.WriteLine($"Patient: {patient.Id} - {patient.Name}");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        public void DisplayInfor(Doctor doctor)
+        {
+            Console.WriteLine($"Doctor: {doctor.Id} - {doctor.Name}");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        public void DisplayInfor(AppointmentRecord a)
+        {
+            Console.WriteLine($"========= Appointment Record ID {a.Id} =========");
+            Console.WriteLine($"Doctor ID: {a.DoctorId}");
+            Console.WriteLine($"Patient Name: {a.PatientId}");
+            Console.WriteLine($"Date: {a.AppointmentDate}");
+            Console.WriteLine($"Status: {a.IsAppointment}");
+            Console.WriteLine();
+        }
+        public void DisplayInfor()
+        {
+            if (!IsEmpty())
+            {
+                Console.WriteLine("========= All Appointment Record =========");
+                foreach (var a in LstAppointmentRecords)
+                {
+                    Console.WriteLine($"Doctor ID: {a.DoctorId}");
+                    Console.WriteLine($"Patient Name: {a.PatientId}");
+                    Console.WriteLine($"Date: {a.AppointmentDate}");
+                    Console.WriteLine($"Status: {a.IsAppointment}");
+                    Console.WriteLine();
+                }
+            }
+            StopScreen();
         }
 
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
-
-            Console.Clear();
-            return checkContinue;
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
         }
     }
 }

@@ -9,67 +9,52 @@ namespace SchedulingSystem
     
 
     internal class DoctorMenu : IManageMenu
-    {   
-        //ManageDoctor manageDoctor { get; set; }
-        //public DoctorMenu(ManageDoctor manageDoctor)
-        //{
-        //    this.manageDoctor = manageDoctor;
-        //}
-
+    {
         public void PrintMenu()
         {
-            bool isExit;
-            do
-            {
-                Console.WriteLine("========= Manage Doctors =========");
-                Console.WriteLine("0. [Return menu]");
-                Console.WriteLine("1. Add Doctors");
-                Console.WriteLine("2. Update Doctors");
-                Console.WriteLine("3. Delete Doctors");
-                Console.WriteLine("4. Show All Doctors");
-                Console.WriteLine("5. Search Doctors");
-                isExit = SelectMenu();
-            }
-            while (!isExit);
+            Console.WriteLine("========= Manage Doctors =========");
+            Console.WriteLine("0. [Return menu]");
+            Console.WriteLine("1. Add Doctors");
+            Console.WriteLine("2. Update Doctors");
+            Console.WriteLine("3. Delete Doctors");
+            Console.WriteLine("4. Show All Doctors");
+            Console.WriteLine("5. Search Doctors");
         }
-        public bool SelectMenu()
+        public string SelectMenu()
         {
-            Console.Write(">>> Input your choice: ");
-            int choice = int.Parse(Console.ReadLine());
-            bool checkExit = false;
+            Console.Write("Please enter your choice: ");
+            string choice = Console.ReadLine();
+            string checkExit = "managedoctor";
 
             switch (choice)
             {
-                case 0:
-                    checkExit = Confirm("return");
+                case "0":
+                    if (Confirm("return")) checkExit = "main";
                     break;
-                case 1:
+                case "1":
                     Console.Clear();
-                    //manageDoctor.Add();
                     ManageDoctor.Instance.Add();
                     break;
-                case 2:
+                case "2":
                     Console.Clear();
-                    //manageDoctor.Update();
                     ManageDoctor.Instance.Update();
                     break;
-                case 3:
+                case "3":
                     Console.Clear();
-                    //manageDoctor.Delete();
                     ManageDoctor.Instance.Delete();
                     break;
-                case 4:
+                case "4":
                     Console.Clear();
-                    //manageDoctor.ShowAll();
-                    ManageDoctor.Instance.ShowAll();
+                    ManageDoctor.Instance.DisplayInfor();
                     break;
-                case 5:
+                case "5":
                     Console.Clear();
-                    //manageDoctor.Search();
                     ManageDoctor.Instance.Search();
                     break;
                 default:
                     Console.WriteLine("Input must be from 0 to 5!");
+                    Console.WriteLine("[Press any key to enter again!]");
+                    Console.ReadLine();
                     break;
             }
             return checkExit;

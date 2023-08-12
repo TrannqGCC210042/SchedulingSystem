@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class ManageDoctor
+    internal class ManageDoctor : IManagement
     {
         private List<Doctor> lstDoctors;
         private static ManageDoctor instance;
@@ -26,25 +26,37 @@ namespace SchedulingSystem
                 return instance;
             }
         }
-        //private List<Doctor> lstDoctors;
         public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
         public ManageDoctor()
         {
             if (lstDoctors == null) lstDoctors = new List<Doctor>();
         }
 
+        public void DisplayInfor(Doctor doctor)
+        {
+            Console.WriteLine($"Result: ");
+            Console.WriteLine($"Doctors ID: {doctor.Id}");
+            Console.WriteLine($"Doctors Name: {doctor.Name}");
+            Console.WriteLine($"Phone Number: {doctor.Phone}");
+            Console.WriteLine($"Address: {doctor.Address}");
+            Console.WriteLine();
+        }
 
         public void Delete()
         {
-            Doctor d = FindDoctorId();
-            if (d == null)
-                Console.WriteLine("Cannot find this Doctor ID!");
-            else
+            Console.WriteLine();
+            Console.WriteLine("========= Delete Doctor =========");
+            if (!IsEmpty())
             {
-                if (Confirm("sure"))
+                Doctor d = FindDoctorId();
+                if (d != null)
                 {
-                    lstDoctors.Remove(d);
-                    Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");
+                    DisplayInfor(d);
+                    if (Confirm("sure"))
+                    {
+                        lstDoctors.Remove(d);
+                        Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");
+                    }
                 }
             }
             StopScreen();
@@ -52,49 +64,108 @@ namespace SchedulingSystem
 
         public void Update()
         {
-            Doctor d = FindDoctorId();
-            if (d == null)
-                Console.WriteLine("Cannot find this Doctor ID!");
-            else
+            Console.WriteLine("========= Update Doctor =========");
+            if (!IsEmpty())
             {
-                Console.WriteLine("========= Update Information =========");
-                Doctor newDoctor = (Doctor)InputInformation();
+                Doctor d = FindDoctorId();
+                if (d != null)
+                {
+                    DisplayInfor(d);
+                    Console.WriteLine("========= Update Information =========");
+                    Console.Write("Doctor Name: ");
+                    string name = Console.ReadLine();
+                    Console.Write("Doctor Phone: ");
+                    string phone = Console.ReadLine();
+                    Console.Write("Doctor Address: ");
+                    string address = Console.ReadLine();
 
-                d.Name = newDoctor.Name;
-                d.Phone = newDoctor.Phone;
-                d.Address = newDoctor.Address;
+                    d.Name = name;
+                    d.Phone = phone;
+                    d.Address = address;
 
-                Console.WriteLine($"Doctor ID {newDoctor.Id} was updated!");
-
+                    Console.WriteLine($"Doctor ID {d.Id} was updated!");
+                }
             }
             StopScreen();
         }
+
+        public Object InputInformation()
+        {
+            Doctor doctor = new Doctor();
+        Name:
+            try
+            {
+                Console.Write("Doctor Name: ");
+                doctor.Name = Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                goto Name;
+            }
+
+        Phone:
+            try
+            {
+                Console.Write("Doctor Phone: ");
+                doctor.Phone = Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                goto Phone;
+            }
+
+        Address:
+            try
+            {
+                Console.Write("Doctor Address: ");
+                doctor.Address = Console.ReadLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                goto Address;
+            }
+
+            return new Doctor(doctor);
+        }
         public Doctor FindDoctorId()
+        {
+            Id:
+            try
+            {
+                Console.WriteLine("[Press \"0\" to return to the menu.]");
+                Console.Write("Choose Doctor ID: ");
+                string id = Console.ReadLine();
+                if (id == "0") return null;
+                foreach (var d in LstDoctors)
+                {
+                    if (d.Id == int.Parse(id))
+                    {                        
+                        Console.WriteLine($"A result was found!");
+                        Console.Clear();
+                        return d;
+                    }
+                }
+                Console.WriteLine("Doctor ID cannot exist in the system.\n");
+                return FindDoctorId();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + "\n");
+                goto Id;
+            }            
+        }
+
+        public bool IsEmpty()
         {
             if (lstDoctors.Count == 0)
             {
                 Console.WriteLine("List Doctor is Empty!");
-                return null;
+                return true;
             }
-            Console.Write("Choose Doctor ID: ");
-            int id = int.Parse(Console.ReadLine());
-
-            Doctor doctor = null;
-            foreach (var d in LstDoctors)
-            {
-                if (d.Id == id)
-                {
-                    Console.WriteLine($"========= Result: Doctor ID {d.Id} =========");
-                    Console.WriteLine($"Doctors ID: {d.Id}");
-                    Console.WriteLine($"Doctors Name: {d.Name}");
-                    Console.WriteLine($"Phone Number: {d.Phone}");
-                    Console.WriteLine($"Address: {d.Address}");
-                    Console.WriteLine();
-                    doctor = d;
-                    break;
-                }
-            }
-            return doctor;
+            return false;
         }
 
         private static void StopScreen()
@@ -112,6 +183,7 @@ namespace SchedulingSystem
                 Console.WriteLine();
                 Console.WriteLine("========= Doctor Information =========");
                 Doctor doctor = (Doctor)InputInformation();
+
                 lstDoctors.Add(doctor);
                 Console.WriteLine("Added successfully!");
                 Console.WriteLine($"Doctor ID was added: {doctor.Id}");
@@ -120,17 +192,15 @@ namespace SchedulingSystem
                 Console.WriteLine("Do you want to continue adding a Doctor?");
                 checkContinue = Confirm("continue");
             } while (checkContinue);
+            StopScreen();
         }
-        public void ShowAll()
+
+        public void DisplayInfor()
         {
-            if (lstDoctors.Count == 0)
-            {
-                Console.WriteLine("List Doctor is Empty!");
-            }
-            else
+            if (!IsEmpty())
             {
                 Console.WriteLine("========= All Doctors =========");
-                foreach (var doctor in lstDoctors)
+                foreach (var doctor in LstDoctors)
                 {
                     Console.WriteLine($"Doctors ID: {doctor.Id}");
                     Console.WriteLine($"Doctors Name: {doctor.Name}");
@@ -145,46 +215,23 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            FindDoctorId();
+            Console.WriteLine();
+            Console.WriteLine("========= Search Doctor =========");
+            Doctor d = FindDoctorId();
+            if (d != null) DisplayInfor(d);
             StopScreen();
-        }
-
-        public Object InputInformation()
-        {
-            Console.Write("Doctor Name: ");
-            string name = Console.ReadLine();
-            Console.Write("Doctor Phone: ");
-            string phone = Console.ReadLine();
-            Console.Write("Doctor Address: ");
-            string address = Console.ReadLine();
-
-            return new Doctor(name, phone, address);
         }
 
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
-
-            Console.Clear();
-            return checkContinue;
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
         }
     }
 }
