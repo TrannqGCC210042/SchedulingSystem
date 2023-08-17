@@ -8,6 +8,6 @@ namespace SchedulingSystem
 {
     internal interface IObserver
     {
-        void update(AppointmentRecord appointmentRecord);
+        void Update(string message);
     }
 }

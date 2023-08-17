@@ -12,6 +12,8 @@ namespace SchedulingSystem
         {
             switch (menuType.ToLower())
             {
+                case "login":
+                    return new Login();
                 case "main":
                     return new MainMenu();
                 case "managedoctor":

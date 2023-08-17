@@ -8,7 +8,7 @@ namespace SchedulingSystem
 {
     internal class ManagePatient : IManagement
     {
-        private static List<Patient> lstPatients;
+        private List<Patient> lstPatients;
         private static ManagePatient instance;
         private static readonly object lockObj = new object();
         public static ManagePatient Instance
@@ -26,8 +26,15 @@ namespace SchedulingSystem
                 return instance;
             }
         }
-        public IReadOnlyCollection<Patient> ListPatients => lstPatients.AsReadOnly();
-        public ManagePatient() { if (lstPatients == null) lstPatients = new List<Patient>(); }
+        public List<Patient> LstPatients
+        {
+            get { return lstPatients; }
+            set { lstPatients = value; }
+        }
+        //public IReadOnlyCollection<Patient> ListPatients => lstPatients.AsReadOnly();
+        private ManagePatient() { 
+            if (lstPatients == null) lstPatients = new List<Patient>(); 
+        }
 
         public void Delete()
         {
@@ -37,15 +44,15 @@ namespace SchedulingSystem
                 if (p != null)
                 {
                     DisplayInfor(p);
-                    if (Confirm("sure"))
+                    if (Confirm($"delete Patient ID {p.Id}"))
                     {
+                        ManageAppointmentRecord.Instance.Delete(p);
                         lstPatients.Remove(p);
                         Console.WriteLine($"Patient ID {p.Id} was deleted successfully!");
                         Delete();
                     }
                 }
             }
-            StopScreen();
         }
 
         public void Update()
@@ -58,16 +65,11 @@ namespace SchedulingSystem
                 {
                     DisplayInfor(p);
                     Console.WriteLine("========= Update Information =========");
-                    Console.Write("Patient Name: ");
-                    string name = Console.ReadLine();
-                    Console.Write("Patient Phone: ");
-                    string phone = Console.ReadLine();
-                    Console.Write("Patient Address: ");
-                    string address = Console.ReadLine();
+                    Patient newPatient = (Patient)InputInformation();
 
-                    p.Name = name;
-                    p.Phone = phone;
-                    p.Address = address;
+                    p.Name = newPatient.Name;
+                    p.Phone = newPatient.Phone;
+                    p.Address = newPatient.Address;
 
                     Console.WriteLine($"Patient ID {p.Id} was updated!");
                 }
@@ -82,16 +84,14 @@ namespace SchedulingSystem
                 Console.WriteLine("[Press \"0\" to cancel.]");
                 Console.Write("Choose Patient ID: ");
                 int id = int.Parse(Console.ReadLine());
-                if (id == 0) return null;
+
+                if (id == 0) 
+                    return null;
+
                 foreach (var p in lstPatients)
-                {
-                    if (p.Id == id)
-                    {
-                        Console.WriteLine($"A result was found!");
-                        Console.Clear();
+                    if (p.Id == id) 
                         return p;
-                    }
-                }
+
                 Console.WriteLine("Cannot find this Patient ID!\n");
                 return FindPatientId();
             }
@@ -129,7 +129,6 @@ namespace SchedulingSystem
         }
         public void DisplayInfor(Patient p)
         {
-            Console.WriteLine($"\n=== Result: ");
             Console.WriteLine($"Patient ID: {p.Id}");
             Console.WriteLine($"Patient Name: {p.Name}");
             Console.WriteLine($"Phone Number: {p.Phone}");
@@ -138,10 +137,26 @@ namespace SchedulingSystem
         }
         public void DisplayInfor()
         {
+
+            Patient p2 = new Patient
+            {
+                Name = "Minh Dat",
+                Phone = "0987654321",
+                Address = "Can Tho"
+            };
+            lstPatients.Add(new Patient(p2));
+
+            Patient p1 = new Patient
+            {
+                Name = "Duy Quang",
+                Phone = "0987654123",
+                Address = "Vinh Long"
+            };
+            lstPatients.Add(new Patient(p1));
             if (!IsEmpty())
             {
                 Console.WriteLine("========= All Patient =========");
-                foreach (var patient in ListPatients)
+                foreach (var patient in this.lstPatients)
                 {
                     Console.WriteLine($"Patient ID: {patient.Id}");
                     Console.WriteLine($"Patient Name: {patient.Name}");

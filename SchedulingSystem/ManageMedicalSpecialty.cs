@@ -10,7 +10,9 @@ namespace SchedulingSystem
     {
         private List<MedicalSpecialty> lstMedicalSpecialties;
         public IReadOnlyCollection<MedicalSpecialty> LstMedicalSpecialties { get { return lstMedicalSpecialties.AsReadOnly(); } }
-        public ManageMedicalSpecialty() { if (lstMedicalSpecialties == null) lstMedicalSpecialties = new List<MedicalSpecialty>(); }
+        private ManageMedicalSpecialty() { 
+            if (lstMedicalSpecialties == null) lstMedicalSpecialties = new List<MedicalSpecialty>(); 
+        }
 
         //Singleton
         private static ManageMedicalSpecialty instance;
@@ -39,10 +41,10 @@ namespace SchedulingSystem
                 if (m != null)
                 {
                     DisplayInfor(m);
-                    if (Confirm("Sure"))
+                    if (Confirm("sure"))
                     {
                         lstMedicalSpecialties.Remove(m);
-                        Console.WriteLine($"Medical Specialty ID {m.Id} was deleted successfully!");
+                        Console.WriteLine($"Medical Specialty ID {m.Id} was deleted in the system!");
                     }
                 }
             }
@@ -71,20 +73,29 @@ namespace SchedulingSystem
         }
         public MedicalSpecialty FindMedicalId()
         {
-            Console.WriteLine("[Press \"0\" to cancel.]");
-            Console.Write("Choose Medical Specialty ID: ");
-            int id = int.Parse(Console.ReadLine());
-            if (id == 0) return null;
-            foreach (var m in lstMedicalSpecialties)
+        FindID:
+            try
             {
-                if (m.Id == id)
-                {
-                    Console.WriteLine($"A result was found!");
-                    return m;
-                }
+                Console.WriteLine("[Press \"0\" to cancel.]");
+                Console.Write("Choose Medical Specialty ID: ");
+                string id = Console.ReadLine();
+
+                if (id == "0")
+                    return null;
+
+                foreach (var m in LstMedicalSpecialties)
+                    if (m.Id == int.Parse(id))
+                        return m;
+
+                Console.WriteLine("Medical Specialty ID cannot exist in the system.\n");
+                goto FindID;
             }
-            Console.WriteLine("Cannot find this Medical Specialty ID!\n");
-            return FindMedicalId();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine();
+                goto FindID;
+            }
         }
 
         private static void StopScreen()
@@ -104,7 +115,7 @@ namespace SchedulingSystem
                 MedicalSpecialty medical = (MedicalSpecialty)InputInformation();
                 lstMedicalSpecialties.Add(medical);
                 Console.WriteLine("Added successfully!");
-                Console.WriteLine($"Medical Specialty ID was added: {medical.Id}");
+                Console.WriteLine($"Medical Specialty ID: {medical.Id}");
 
                 Console.WriteLine();
                 Console.WriteLine("Do you want to continue adding a Medical Specialty?");
@@ -126,7 +137,7 @@ namespace SchedulingSystem
 
         public void DisplayInfor(MedicalSpecialty medicalSpecialty)
         {
-            Console.WriteLine($"========= Result: Medical Specialty ID {medicalSpecialty.Id} =========");
+            Console.WriteLine($"========= Medical Specialty ID {medicalSpecialty.Id} =========");
             Console.WriteLine($"Medical Specialty ID: {medicalSpecialty.Id}");
             Console.WriteLine($"Medical Specialty Name: {medicalSpecialty.SpecialtyName}");
             Console.WriteLine($"Medical Specialty Description: {medicalSpecialty.SpecialtyDescription}");
@@ -135,14 +146,20 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            FindMedicalId();
+            Console.WriteLine("========= Search Medical Specialty =========");
+            MedicalSpecialty medicalSpecialty = FindMedicalId();
+            if (medicalSpecialty != null)
+            {
+                Console.WriteLine();
+                DisplayInfor(medicalSpecialty);
+            }
             StopScreen();
         }
 
         public Object InputInformation()
         {
             MedicalSpecialty medicalSpecialty = new MedicalSpecialty();
-            Name:
+        Name:
             try
             {
                 Console.Write("Medical Specialty Name: ");

@@ -11,7 +11,7 @@ namespace SchedulingSystem
     {
         string specialtyName;
         string specialtyDescription;
-        private static int nextId = 1;
+        private static int nextId = 0;
         public int Id { get { return nextId; } private set { } }
         public string SpecialtyName
         {
@@ -19,11 +19,11 @@ namespace SchedulingSystem
             set {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("Name cannot be empty or whitespace!");
+                    throw new ArgumentException("Name cannot be empty or whitespace!\n");
                 }
                 if (!IsValidName(value))
                 {
-                    throw new ArgumentException("Name should contain only letters!");
+                    throw new ArgumentException("Name should contain only letters!\n");
                 }
                 specialtyName = value; 
             }
@@ -35,18 +35,14 @@ namespace SchedulingSystem
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("Description cannot be empty or whitespace!");
-                }
-                if (!IsValidName(value))    
-                {
-                    throw new ArgumentException("Description should contain only letters!");
+                    throw new ArgumentException("Description cannot be empty or whitespace!\n");
                 }
                 specialtyDescription = value;
             }
         }
         public MedicalSpecialty() { }
         public MedicalSpecialty(MedicalSpecialty medical) {
-            Id = nextId++;  
+            Id = ++nextId;  
             SpecialtyName = medical.SpecialtyName;
             SpecialtyDescription = medical.SpecialtyDescription;
         }

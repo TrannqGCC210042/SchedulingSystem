@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class Person
+    internal class Person : IObserver
     {
         private string name;
         private string phone;
         private string address;
 
-        public string Name { 
-            get { return name; } 
-            set {
+        public string Name
+        {
+            get { return name; }
+            set
+            {
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Name cannot be empty or whitespace!");
@@ -24,12 +26,14 @@ namespace SchedulingSystem
                 {
                     throw new ArgumentException("Name should contain only letters!");
                 }
-                name = value; 
-            } 
+                name = value;
+            }
         }
-        public string Phone { 
-            get { return phone; } 
-            set {
+        public string Phone
+        {
+            get { return phone; }
+            set
+            {
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Address cannot be empty or whitespace!");
@@ -41,20 +45,23 @@ namespace SchedulingSystem
                 if (value.Length != 10)
                     throw new ArgumentException("Phone number must be 10 digits!");
                 phone = value;
-            } 
+            }
         }
-        public string Address {
-            get { return address; } 
-            set {
+        public string Address
+        {
+            get { return address; }
+            set
+            {
                 if (string.IsNullOrWhiteSpace(value))
                 {
                     throw new ArgumentException("Address cannot be empty or whitespace!");
                 }
-                address = value; 
-            } 
+                address = value;
+            }
         }
         public Person() { }
-        public Person(string name, string phone, string address) { 
+        public Person(string name, string phone, string address)
+        {
             Name = name;
             Phone = phone;
             Address = address;
@@ -69,6 +76,11 @@ namespace SchedulingSystem
         {
             // Using regular expression to check if the phone number matches a basic pattern
             return Regex.IsMatch(phoneNumber, @"^\d{10}$");
+        }
+
+        public void Update(string message)
+        {
+            Console.WriteLine($"{this.name} has been notified: {message}");
         }
     }
 }

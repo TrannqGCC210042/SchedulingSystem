@@ -10,13 +10,13 @@ namespace SchedulingSystem
     {      
         public void PrintMenu()
         {
-            Console.WriteLine("========= Manage Appointment Records =========");
+            Console.WriteLine("=== Manage Appointment Records ===");
             Console.WriteLine("0. [Return menu]");
             Console.WriteLine("1. Schedule Appointment");
             Console.WriteLine("2. Reschedule Appointment");
             Console.WriteLine("3. Cancel Appointment");
-            Console.WriteLine("4. Display Appointment Details");
-            Console.WriteLine("5. Search Appointment Records");
+            Console.WriteLine("4. Display All Appointments");
+            Console.WriteLine("5. Search Appointment");
         }
         public string SelectMenu()
         {
@@ -30,8 +30,6 @@ namespace SchedulingSystem
                     break;
                 case "1":
                     Console.Clear();
-                    ManageDoctor.Instance.Add();
-                    ManagePatient.Instance.Add();
                     ManageAppointmentRecord.Instance.Add();
                     break;
                 case "2":
@@ -60,28 +58,14 @@ namespace SchedulingSystem
         }
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
-
-            Console.Clear();
-            return checkContinue;
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
         }
     }
 }

@@ -26,15 +26,20 @@ namespace SchedulingSystem
                 return instance;
             }
         }
-        public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
-        public ManageDoctor()
+
+        public List<Doctor> LstDoctors
+        {
+            get { return lstDoctors; }
+            set { lstDoctors = value; }
+        }
+        // public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
+        private ManageDoctor()
         {
             if (lstDoctors == null) lstDoctors = new List<Doctor>();
         }
 
         public void DisplayInfor(Doctor doctor)
         {
-            Console.WriteLine($"Result: ");
             Console.WriteLine($"Doctors ID: {doctor.Id}");
             Console.WriteLine($"Doctors Name: {doctor.Name}");
             Console.WriteLine($"Phone Number: {doctor.Phone}");
@@ -52,14 +57,14 @@ namespace SchedulingSystem
                 if (d != null)
                 {
                     DisplayInfor(d);
-                    if (Confirm("sure"))
+                    if (Confirm($"delete Doctor ID {d.Id}"))
                     {
+                        ManageAppointmentRecord.Instance.Delete(d);
                         lstDoctors.Remove(d);
-                        Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");
+                        Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");                      
                     }
                 }
             }
-            StopScreen();
         }
 
         public void Update()
@@ -72,16 +77,11 @@ namespace SchedulingSystem
                 {
                     DisplayInfor(d);
                     Console.WriteLine("========= Update Information =========");
-                    Console.Write("Doctor Name: ");
-                    string name = Console.ReadLine();
-                    Console.Write("Doctor Phone: ");
-                    string phone = Console.ReadLine();
-                    Console.Write("Doctor Address: ");
-                    string address = Console.ReadLine();
+                    Doctor newDoctor = (Doctor)InputInformation();
 
-                    d.Name = name;
-                    d.Phone = phone;
-                    d.Address = address;
+                    d.Name = newDoctor.Name;
+                    d.Phone = newDoctor.Phone;
+                    d.Address = newDoctor.Address;
 
                     Console.WriteLine($"Doctor ID {d.Id} was updated!");
                 }
@@ -132,22 +132,20 @@ namespace SchedulingSystem
         }
         public Doctor FindDoctorId()
         {
-            Id:
+        Id:
             try
             {
-                Console.WriteLine("[Press \"0\" to return to the menu.]");
+                Console.WriteLine("[Press \"0\" to return to cancel.]");
                 Console.Write("Choose Doctor ID: ");
                 string id = Console.ReadLine();
-                if (id == "0") return null;
-                foreach (var d in LstDoctors)
-                {
-                    if (d.Id == int.Parse(id))
-                    {                        
-                        Console.WriteLine($"A result was found!");
-                        Console.Clear();
+
+                if (id == "0") 
+                    return null;
+
+                foreach (var d in lstDoctors)
+                    if (d.Id == int.Parse(id)) 
                         return d;
-                    }
-                }
+
                 Console.WriteLine("Doctor ID cannot exist in the system.\n");
                 return FindDoctorId();
             }
@@ -155,7 +153,7 @@ namespace SchedulingSystem
             {
                 Console.WriteLine(e.Message + "\n");
                 goto Id;
-            }            
+            }
         }
 
         public bool IsEmpty()
@@ -197,10 +195,26 @@ namespace SchedulingSystem
 
         public void DisplayInfor()
         {
+            Doctor d = new Doctor
+            {
+                Name = "Tran",
+                Phone = "0987654321",
+                Address = "Can Tho"
+            };
+            lstDoctors.Add(new Doctor(d));
+
+            Doctor d1 = new Doctor
+            {
+                Name = "Duy",
+                Phone = "0987654123",
+                Address = "Can Tho"
+            };
+            lstDoctors.Add(new Doctor(d1));
+
             if (!IsEmpty())
             {
                 Console.WriteLine("========= All Doctors =========");
-                foreach (var doctor in LstDoctors)
+                foreach (var doctor in lstDoctors)
                 {
                     Console.WriteLine($"Doctors ID: {doctor.Id}");
                     Console.WriteLine($"Doctors Name: {doctor.Name}");
@@ -215,7 +229,6 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            Console.WriteLine();
             Console.WriteLine("========= Search Doctor =========");
             Doctor d = FindDoctorId();
             if (d != null) DisplayInfor(d);

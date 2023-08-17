@@ -10,6 +10,8 @@ namespace SchedulingSystem
     {
         void RegisterObserver(IObserver observer);
         void RemoveObserver(IObserver observer);    
-        void NotifyRelevant(ISubject subject);
+        //void NotifyRelevant(ISubject subject);
+        void NotifyRelevant(string message);
+
     }
 }

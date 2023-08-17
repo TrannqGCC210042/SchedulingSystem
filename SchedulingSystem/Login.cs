@@ -6,35 +6,39 @@ using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
-    internal class Login
+    internal class Login : IManageMenu
     {
         public Login() { }
-        public void InputUsernamePassword()
+
+        public bool Confirm(string message)
         {
-            bool checkAccount = false;
-            while (checkAccount)
+            throw new NotImplementedException();
+        }
+
+        public void PrintMenu()
+        {
+            Console.WriteLine("========= LOGIN =========");
+        }
+
+        public string SelectMenu()
+        {
+        Check:
+            try
             {
                 Console.Write("Username: ");
                 string username = Console.ReadLine();
-                Console.Write("Password");
+                Console.Write("Password: ");
                 string password = Console.ReadLine();
-                checkAccount = CheckAccount(username, password);
+
+                if (username == "admin" && password == "1")
+                    return "main";
+                Console.WriteLine("Invalid username or password!\n");
+                goto Check;
             }
-        }
-        private bool CheckAccount(string username, string password)
-        {
-            if (username == "admin" && password == "1")
-            {
-                //ManageDoctor manageDoctor = new ManageDoctor();
-                //ManagePatient managePatient = new ManagePatient();
-                //ManageAppointmentRecord manageAppointment = new ManageAppointmentRecord();
-                //ManageMedicalSpecialty manageMedical = new ManageMedicalSpecialty();
-
-                //MainMenu m = new MainMenu(manageDoctor, managePatient, manageAppointment, manageMedical);
-                //m.PrintMenu();
-            }       
-
-            return true;
+            catch (Exception e) {             
+                Console.Write(e.Message);
+                goto Check;
+            }
         }
     }
 }

@@ -10,13 +10,13 @@ namespace SchedulingSystem
     {        
         public void PrintMenu()
         {
-            Console.WriteLine("========= Manage Medical Specialties =========");
+            Console.WriteLine("========= Manage Medical Specialty =========");
             Console.WriteLine("0. [Return menu]");
-            Console.WriteLine("1. Add Medical Specialties");
-            Console.WriteLine("2. Update Medical Specialties");
-            Console.WriteLine("3. Delete Medical Specialties");
+            Console.WriteLine("1. Add Medical Specialty");
+            Console.WriteLine("2. Update Medical Specialty");
+            Console.WriteLine("3. Delete Medical Specialty");
             Console.WriteLine("4. Show All Medical Specialties");
-            Console.WriteLine("5. Search Medical Specialties");
+            Console.WriteLine("5. Search Medical Specialty");
         }
         public string SelectMenu()
         {
@@ -58,28 +58,14 @@ namespace SchedulingSystem
         }
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
-
-            Console.Clear();
-            return checkContinue;
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
         }
     }
 }

@@ -60,31 +60,16 @@ namespace SchedulingSystem
             return checkExit;
         }
 
-
         public bool Confirm(string message)
         {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
+                return isExit.Equals("y") ? true : false;
             }
-
-            Console.Clear();
-            return checkContinue;
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
         }
     }
 }

@@ -8,9 +8,14 @@ namespace SchedulingSystem
 {
     internal class ManageAppointmentRecord : IManagement
     {
+        enum AppointmentStatus
+        {
+            Waiting,
+            Confirmed
+        }
         private static List<AppointmentRecord> lstAppointmentRecords;
         public IReadOnlyCollection<AppointmentRecord> LstAppointmentRecords { get { return lstAppointmentRecords.AsReadOnly(); } }
-        public ManageAppointmentRecord()
+        private ManageAppointmentRecord()
         {
             if (lstAppointmentRecords == null) lstAppointmentRecords = new List<AppointmentRecord>();
         }
@@ -40,54 +45,134 @@ namespace SchedulingSystem
                 if (a != null)
                 {
                     DisplayInfor(a);
-                    if (Confirm("sure"))
+                    if (Confirm("cancel this Appointment Record"))
                     {
+                        a.NotifyRelevant("Appointment time cancled");
                         lstAppointmentRecords.Remove(a);
-                        Console.WriteLine($"Appointment Record ID {a.Id} was deleted successfully!");
+                        Console.WriteLine($"Appointment Record ID {a.Id} was deleted in the system!");
                     }
                 }
             }
             StopScreen();
+        }
+        public void Delete(Doctor doctor)
+        {
+            foreach (var a in LstAppointmentRecords)
+            {
+                if (a.Doctor == doctor)
+                {
+                    a.RemoveObserver(a.Doctor);
+                    break;
+                }
+            }
+        }
+
+        public void Delete(Patient patient)
+        {
+            foreach (var a in LstAppointmentRecords)
+            {
+                if (a.Patient == patient)
+                {
+                    a.RemoveObserver(a.Patient);
+                    break;
+                }
+            }
         }
 
         public void Update()
         {
             if (!IsEmpty())
             {
-                AppointmentRecord a = FindAppointmentlId();
-                if (a != null)
+                AppointmentRecord newRecord = FindAppointmentlId();
+                if (newRecord != null)
                 {
-                    DisplayInfor(a);
-                    Console.WriteLine("========= Update Information =========");
-                    AppointmentRecord newRecord = (AppointmentRecord)InputInformation();
+                    DisplayInfor(newRecord);
+                    Console.WriteLine("\n========= Update Information =========");
 
-                    a.DoctorId = newRecord.DoctorId;
-                    a.PatientId = newRecord.PatientId;
-                    a.AppointmentDate = newRecord.AppointmentDate;
-                    a.IsAppointment = newRecord.IsAppointment;
+                DateTime:
+                    try
+                    {
+                        Console.Write("Enter a date (dd-MM-yyyy): ");
+                        newRecord.AppointmentDate = DateTime.Parse(Console.ReadLine());
+                        Console.WriteLine($"Date {newRecord.AppointmentDate:dd-MM-yyyy} has been selected.");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine();
+                        goto DateTime;
+                    }
 
+                    Console.WriteLine();
 
+                Status:
+                    try
+                    {
+                        Console.WriteLine("Status: ");
+                        Console.WriteLine("0. Waiting ");
+                        Console.WriteLine("1. Confirmed ");
+                        Console.Write("Choose status [0 or 1]: ");
+                        int chooseStatus = int.Parse(Console.ReadLine());
+
+                        if (Enum.IsDefined(typeof(AppointmentStatus), chooseStatus))
+                        {
+                            newRecord.IsAppointment = chooseStatus == 1;
+                            Console.WriteLine($"Appointment status: {Enum.GetName(typeof(AppointmentStatus), chooseStatus)}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid choice. Please choose 0 or 1.\n");
+                            goto Status;
+                        }
+
+                        //if (chooseStatus < 0 && chooseStatus > 1)
+                        //{
+                        //    Console.WriteLine("Invalid choice. Please choose 0 or 1.");
+                        //    goto Status;
+                        //}
+                        //else
+                        //{
+                        //    newRecord.IsAppointment = chooseStatus == 1;
+                        //    Console.WriteLine($"Appointment's Status has been selected.");
+                        //}
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"{e.Message}");
+                        goto Status;
+                    }
+                    Console.WriteLine();
+                    newRecord.NotifyRelevant("Appointment time updated");
                     Console.WriteLine($"Appointment Record ID {newRecord.Id} was updated!");
                 }
             }
             StopScreen();
         }
+
         public AppointmentRecord FindAppointmentlId()
         {
-            Console.WriteLine("[Press \"0\" to return to the menu.]");
-            Console.Write("Choose Appointment Record ID: ");
-            int id = int.Parse(Console.ReadLine());
-
-            if (id == 0) return null;
-            foreach (var a in LstAppointmentRecords)
+            try
             {
-                if (a.Id == id)
-                {
-                    return a;
-                }
+                Console.WriteLine("[Press \"0\" to return to the menu.]");
+                Console.Write("Choose Appointment Record ID: ");
+                int id = int.Parse(Console.ReadLine());
+
+                if (id == 0)
+                    return null;
+
+                foreach (var a in LstAppointmentRecords)
+                    if (a.Id == id)
+                        return a;
+
+                Console.WriteLine($"The Appointment Record ID {id} does not exist in the system.\n");
+                return FindAppointmentlId();
             }
-            Console.WriteLine("Appointment Record ID cannot exist in the system.\n");
-            return FindAppointmentlId();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine();
+                return FindAppointmentlId();
+            }
         }
 
         private static void StopScreen()
@@ -104,21 +189,25 @@ namespace SchedulingSystem
                 Console.WriteLine();
                 Console.WriteLine("========= Appointment Record Information =========");
                 AppointmentRecord appointment = (AppointmentRecord)InputInformation();
+                if (appointment == null) return;
                 lstAppointmentRecords.Add(appointment);
+
+                appointment.RegisterObserver(appointment.Doctor);
+                appointment.RegisterObserver(appointment.Patient);
+                appointment.NotifyRelevant("Appointment time added");
+                Console.WriteLine($"Appointment Record ID: {appointment.Id}");
                 Console.WriteLine("Added successfully!");
-                Console.WriteLine($"Appointment Record ID was added: {appointment.Id}");
 
                 Console.WriteLine();
                 Console.WriteLine("Do you want to continue adding a Appointment Record?");
                 if (Confirm("continue")) Add();
             }
-            StopScreen();
         }
         public bool IsEmpty()
         {
             if (lstAppointmentRecords.Count == 0)
             {
-                Console.WriteLine("List Doctor is Empty!");
+                Console.WriteLine("List Appointment Record is empty!");
                 return true;
             }
             return false;
@@ -126,7 +215,13 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            FindAppointmentlId();
+            Console.WriteLine("========= Search Appointment Record =========");
+            AppointmentRecord appointment = FindAppointmentlId();
+            if (appointment != null)
+            {
+                Console.WriteLine("\nA result was found!");
+                DisplayInfor(appointment);
+            }
             StopScreen();
         }
 
@@ -134,106 +229,65 @@ namespace SchedulingSystem
         {
             AppointmentRecord appointmentRecord = new AppointmentRecord();
 
-        // User must choose a Doctor
-        ChooseDoctor:
-            Console.WriteLine("Choose Doctor by ID");
-            appointmentRecord.DoctorId = ManageDoctor.Instance.FindDoctorId();
-            if (appointmentRecord.DoctorId == null)
+        AddDoctor:
+            appointmentRecord.Doctor = ManageDoctor.Instance.FindDoctorId();
+            if (appointmentRecord.Doctor == null)
             {
-                Console.Clear();
-                goto ChooseDoctor;
+                if (Confirm("cancel")) goto Cancel;
+                goto AddDoctor;
             }
-            Console.WriteLine($"Doctor {appointmentRecord.DoctorId.Id} has been selected.");
-            Console.WriteLine("[next] >>");
-            Console.ReadKey();
-            Console.Clear();
-        // User must choose a Patient
-        ChoosePatient:
-            Console.WriteLine("Choose Patient by ID");
-            appointmentRecord.PatientId = ManagePatient.Instance.FindPatientId();
-            if (appointmentRecord.PatientId == null)
+            DisplayInfor(appointmentRecord.Doctor);
+            Console.WriteLine();
+
+        AddPatient:
+            appointmentRecord.Patient = ManagePatient.Instance.FindPatientId();
+            if (appointmentRecord.Patient == null)
             {
-                Console.Clear();
-                goto ChoosePatient;
+                if (Confirm("cancel")) goto Cancel;
+                goto AddPatient;
             }
-            Console.WriteLine($"Patient {appointmentRecord.PatientId.Id} has been selected.");
-            Console.WriteLine("[next] >>");
-            Console.ReadKey();
-            Console.Clear();
+            DisplayInfor(appointmentRecord.Patient);
 
         DateTime:
             try
             {
-                Console.Write("Enter a date (dd-MM-yyyy): ");
+                Console.Write("\nEnter a date [MM-dd-yyyy]: ");
                 appointmentRecord.AppointmentDate = DateTime.Parse(Console.ReadLine());
-                Console.WriteLine($"Date {appointmentRecord.AppointmentDate} has been selected.");
-                Console.WriteLine("[next] >>");
-                Console.ReadKey();
-                Console.Clear();
+                Console.WriteLine($"Date {appointmentRecord.AppointmentDate} has been selected.\n");
             }
             catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}");
-                Console.ReadKey();
-                Console.Clear();
                 goto DateTime;
             }
-
-        Status:
-            try
-            {
-                Console.WriteLine("Status: ");
-                Console.WriteLine("0. Waiting ");
-                Console.WriteLine("1. Confirmed ");
-                Console.Write("Choose status [0 or 1]: ");
-                int chooseStatus = int.Parse(Console.ReadLine());
-                if (chooseStatus < 0 && chooseStatus > 1)
-                {
-                    Console.Clear() ;
-                    goto Status;
-                }
-                Console.WriteLine("[finish] >>");
-                if (chooseStatus == 1)
-                {
-                    appointmentRecord.IsAppointment = true;
-                }
-                else
-                {
-                    appointmentRecord.IsAppointment = false;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"{e.Message}");
-                goto Status;
-            }
-
-            DisplayInfor(appointmentRecord);
-
+            appointmentRecord.IsAppointment = false;
+            return appointmentRecord;
+        Cancel:
+            appointmentRecord = null;
             return appointmentRecord;
         }
 
         public void DisplayInfor(Patient patient)
         {
-            Console.WriteLine($"Patient: {patient.Id} - {patient.Name}");
-            Console.ReadKey();
-            Console.Clear();
+            Console.WriteLine($"Chosen Patient: \"{patient.Id} - {patient.Name}\"");
         }
 
         public void DisplayInfor(Doctor doctor)
         {
-            Console.WriteLine($"Doctor: {doctor.Id} - {doctor.Name}");
-            Console.ReadKey();
-            Console.Clear();
+            Console.WriteLine($"Chosen Doctor: \"{doctor.Id} - {doctor.Name}\"");
         }
 
         public void DisplayInfor(AppointmentRecord a)
         {
             Console.WriteLine($"========= Appointment Record ID {a.Id} =========");
-            Console.WriteLine($"Doctor ID: {a.DoctorId}");
-            Console.WriteLine($"Patient Name: {a.PatientId}");
+            Console.WriteLine($"Doctor:");
+            DisplayInfor(a.Doctor);
+            Console.WriteLine($"Patient:");
+            DisplayInfor(a.Patient);
             Console.WriteLine($"Date: {a.AppointmentDate}");
-            Console.WriteLine($"Status: {a.IsAppointment}");
+            Console.Write("Status: ");
+            if (a.IsAppointment) Console.WriteLine("Confirmed");
+            else Console.WriteLine("Waiting confirm");
             Console.WriteLine();
         }
         public void DisplayInfor()
@@ -243,11 +297,15 @@ namespace SchedulingSystem
                 Console.WriteLine("========= All Appointment Record =========");
                 foreach (var a in LstAppointmentRecords)
                 {
-                    Console.WriteLine($"Doctor ID: {a.DoctorId}");
-                    Console.WriteLine($"Patient Name: {a.PatientId}");
-                    Console.WriteLine($"Date: {a.AppointmentDate}");
-                    Console.WriteLine($"Status: {a.IsAppointment}");
-                    Console.WriteLine();
+                    Console.WriteLine($"Doctor Information:");
+                    DisplayInfor(a.Doctor);
+                    Console.WriteLine($"Patient Information:");
+                    DisplayInfor(a.Patient);
+                    Console.WriteLine($"Date time: {a.AppointmentDate}");
+                    Console.Write("Status: ");
+                    if (a.IsAppointment) Console.WriteLine("Confirmed");
+                    else Console.WriteLine("Waiting confirm");
+                    Console.WriteLine("_______________________");
                 }
             }
             StopScreen();
@@ -258,9 +316,7 @@ namespace SchedulingSystem
             Console.Write($"Are you sure to {message}? [y/n]: ");
             string isExit = Console.ReadLine();
             if (isExit.Equals("y") || isExit.Equals("n"))
-            {
                 return isExit.Equals("y") ? true : false;
-            }
             Console.WriteLine("Input must be \"y\" or \"n\".");
             return Confirm(message);
         }
