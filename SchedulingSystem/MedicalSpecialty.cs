@@ -12,7 +12,7 @@ namespace SchedulingSystem
         string specialtyName;
         string specialtyDescription;
         private static int nextId = 0;
-        public int Id { get { return nextId; } private set { } }
+        public int Id { get; private set; }
         public string SpecialtyName
         {
             get { return specialtyName; }

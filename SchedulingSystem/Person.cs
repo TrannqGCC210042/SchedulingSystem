@@ -12,6 +12,7 @@ namespace SchedulingSystem
         private string name;
         private string phone;
         private string address;
+        private List<string> lstAppointment { get; set; }
 
         public string Name
         {
@@ -59,12 +60,19 @@ namespace SchedulingSystem
                 address = value;
             }
         }
+        public List<string> LstAppointment
+        {
+            get { return lstAppointment; }
+            set { lstAppointment = value; }
+        }
+
         public Person() { }
-        public Person(string name, string phone, string address)
+        public Person(string name, string phone, string address, List<string> lstAppointment)
         {
             Name = name;
             Phone = phone;
             Address = address;
+            LstAppointment = lstAppointment;
         }
 
         private bool IsValidName(string name)

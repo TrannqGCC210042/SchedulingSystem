@@ -11,12 +11,13 @@ namespace SchedulingSystem
         private static int nextId = 0;
         public int Id { get; private set; }
 
-        public Patient() { }
-        public Patient(Patient patient) {
+        public Patient()
+        {
             Id = ++nextId;
-            Name = patient.Name;
-            Phone = patient.Phone;
-            Address = patient.Address;
+        }
+        public Patient(string name, string phone, string address, List<string> lstAppointment) : base(name, phone, address, lstAppointment)
+        {
+            Id = ++nextId;
         }
     }
 }

@@ -38,6 +38,11 @@ namespace SchedulingSystem
             if (lstDoctors == null) lstDoctors = new List<Doctor>();
         }
 
+        public void UpdateAppointment(string message, Doctor doctor)
+        {
+            doctor.LstAppointment.Add(message);
+        }
+
         public void DisplayInfor(Doctor doctor)
         {
             Console.WriteLine($"Doctors ID: {doctor.Id}");
@@ -61,10 +66,11 @@ namespace SchedulingSystem
                     {
                         ManageAppointmentRecord.Instance.Delete(d);
                         lstDoctors.Remove(d);
-                        Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");                      
+                        Console.WriteLine($"Doctor ID {d.Id} was deleted successfully!");
                     }
                 }
             }
+            StopScreen();
         }
 
         public void Update()
@@ -76,7 +82,7 @@ namespace SchedulingSystem
                 if (d != null)
                 {
                     DisplayInfor(d);
-                    Console.WriteLine("========= Update Information =========");
+                    Console.WriteLine("\nEnter changes:");
                     Doctor newDoctor = (Doctor)InputInformation();
 
                     d.Name = newDoctor.Name;
@@ -128,7 +134,7 @@ namespace SchedulingSystem
                 goto Address;
             }
 
-            return new Doctor(doctor);
+            return doctor;
         }
         public Doctor FindDoctorId()
         {
@@ -139,11 +145,11 @@ namespace SchedulingSystem
                 Console.Write("Choose Doctor ID: ");
                 string id = Console.ReadLine();
 
-                if (id == "0") 
+                if (id == "0")
                     return null;
 
                 foreach (var d in lstDoctors)
-                    if (d.Id == int.Parse(id)) 
+                    if (d.Id == int.Parse(id))
                         return d;
 
                 Console.WriteLine("Doctor ID cannot exist in the system.\n");
@@ -160,7 +166,7 @@ namespace SchedulingSystem
         {
             if (lstDoctors.Count == 0)
             {
-                Console.WriteLine("List Doctor is Empty!");
+                Console.WriteLine("Notification: List Doctor is Empty!");
                 return true;
             }
             return false;
@@ -175,41 +181,53 @@ namespace SchedulingSystem
 
         public void Add()
         {
-            bool checkContinue;
-            do
+            Console.WriteLine();
+            Console.WriteLine("========= Doctor Information =========");
+            Doctor doctor = (Doctor)InputInformation();
+            doctor.LstAppointment = new List<string>
+            {
+                $"Created at {DateTime.Now}"
+            };
+
+            lstDoctors.Add(doctor);
+            Console.WriteLine("Added successfully!");
+            Console.WriteLine($"Doctor ID was added: {doctor.Id}");
+
+            Console.WriteLine();
+            Console.WriteLine("Do you want to continue adding a Doctor?");
+            if (Confirm("continue"))
             {
                 Console.WriteLine();
-                Console.WriteLine("========= Doctor Information =========");
-                Doctor doctor = (Doctor)InputInformation();
+                Add();
+            }
 
-                lstDoctors.Add(doctor);
-                Console.WriteLine("Added successfully!");
-                Console.WriteLine($"Doctor ID was added: {doctor.Id}");
-
-                Console.WriteLine();
-                Console.WriteLine("Do you want to continue adding a Doctor?");
-                checkContinue = Confirm("continue");
-            } while (checkContinue);
-            StopScreen();
         }
 
         public void DisplayInfor()
         {
-            Doctor d = new Doctor
+            /*Doctor d = new Doctor
             {
                 Name = "Tran",
                 Phone = "0987654321",
-                Address = "Can Tho"
+                Address = "Can Tho",
+                LstAppointment = new List<string>
+                {
+                    $"Created at {DateTime.Now}"
+                }
             };
-            lstDoctors.Add(new Doctor(d));
+            lstDoctors.Add(d);
 
             Doctor d1 = new Doctor
             {
                 Name = "Duy",
                 Phone = "0987654123",
-                Address = "Can Tho"
+                Address = "Can Tho",
+                LstAppointment = new List<string>
+                {
+                    $"Created at {DateTime.Now}"
+                }
             };
-            lstDoctors.Add(new Doctor(d1));
+            lstDoctors.Add(d1);*/
 
             if (!IsEmpty())
             {
@@ -220,6 +238,11 @@ namespace SchedulingSystem
                     Console.WriteLine($"Doctors Name: {doctor.Name}");
                     Console.WriteLine($"Phone Number: {doctor.Phone}");
                     Console.WriteLine($"Address: {doctor.Address}");
+                    Console.WriteLine($"Appointment status:");
+                    foreach (var notification in doctor.LstAppointment)
+                    {
+                        Console.WriteLine($"[{notification}]");
+                    }
                     Console.WriteLine();
                 }
             }
@@ -229,9 +252,12 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            Console.WriteLine("========= Search Doctor =========");
-            Doctor d = FindDoctorId();
-            if (d != null) DisplayInfor(d);
+            if (!IsEmpty())
+            {
+                Console.WriteLine("========= Search Doctor =========");
+                Doctor d = FindDoctorId();
+                if (d != null) DisplayInfor(d);
+            }
             StopScreen();
         }
 
@@ -241,7 +267,7 @@ namespace SchedulingSystem
             string isExit = Console.ReadLine();
             if (isExit.Equals("y") || isExit.Equals("n"))
             {
-                return isExit.Equals("y") ? true : false;
+                return isExit.Equals("y");
             }
             Console.WriteLine("Input must be \"y\" or \"n\".");
             return Confirm(message);

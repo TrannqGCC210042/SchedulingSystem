@@ -9,13 +9,14 @@ namespace SchedulingSystem
 {
     internal class AppointmentRecord : ISubject
     {
+        public int Id { get; private set; }
         private Doctor doctor;
         private Patient patient;
         private DateTime appointmentDate;
+        private bool isAppointment;
         private static int nextId = 1;
         private List<IObserver> observers = new List<IObserver>();
 
-        public int Id { get { return nextId; } private set { } }
         public Doctor Doctor { 
             get { return doctor; }
             set { doctor = value; }
@@ -37,15 +38,23 @@ namespace SchedulingSystem
                 appointmentDate = value;
             }
         }
-        public bool IsAppointment { get; set; }
-        public AppointmentRecord() { }
-        public AppointmentRecord(AppointmentRecord appointmentRecord)
+        public bool IsAppointment
+        {
+            get { return isAppointment; }
+            set { isAppointment = value; }
+        }
+
+        public AppointmentRecord()
         {
             Id = nextId++;
-            Doctor = appointmentRecord.Doctor;
-            Patient = appointmentRecord.Patient;
-            AppointmentDate = appointmentRecord.AppointmentDate;
-            IsAppointment = appointmentRecord.IsAppointment;
+        }
+        public AppointmentRecord(Doctor doctor, Patient patient, DateTime appointmentDate, bool isAppointment)
+        {
+            Id = nextId++;
+            Doctor = doctor;
+            Patient = patient;
+            AppointmentDate = appointmentDate;
+            IsAppointment = isAppointment;
         }
 
         public void RegisterObserver(IObserver observer)

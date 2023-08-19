@@ -41,15 +41,22 @@ namespace SchedulingSystem
         {
             if (!IsEmpty())
             {
-                AppointmentRecord a = FindAppointmentlId();
-                if (a != null)
+                AppointmentRecord appointment = FindAppointmentlId();
+                if (appointment != null)
                 {
-                    DisplayInfor(a);
+                    DisplayInfor(appointment);
                     if (Confirm("cancel this Appointment Record"))
                     {
-                        a.NotifyRelevant("Appointment time cancled");
-                        lstAppointmentRecords.Remove(a);
-                        Console.WriteLine($"Appointment Record ID {a.Id} was deleted in the system!");
+                        ManageDoctor.Instance.UpdateAppointment($"Removed in appointment ID {appointment.Id} - {DateTime.Now}", appointment.Doctor);
+                        ManagePatient.Instance.UpdateAppointment($"Removed in appointment ID {appointment.Id} - {DateTime.Today}", appointment.Patient);
+
+                        appointment.NotifyRelevant("Appointment was canceled.");
+
+                        appointment.RemoveObserver(appointment.Doctor);
+                        appointment.RemoveObserver(appointment.Patient);
+
+                        lstAppointmentRecords.Remove(appointment);
+                        Console.WriteLine($"Appointment Record ID {appointment.Id} was deleted in the system!");
                     }
                 }
             }
@@ -83,18 +90,19 @@ namespace SchedulingSystem
         {
             if (!IsEmpty())
             {
-                AppointmentRecord newRecord = FindAppointmentlId();
-                if (newRecord != null)
+                AppointmentRecord findRecord = FindAppointmentlId();
+                if (findRecord != null)
                 {
-                    DisplayInfor(newRecord);
-                    Console.WriteLine("\n========= Update Information =========");
-
+                    DisplayInfor(findRecord);
+                    Console.WriteLine("\nEnter changes:");
+                    DateTime newAppoinmentDate;
+                    bool changeIsAppointment;
                 DateTime:
                     try
                     {
                         Console.Write("Enter a date (dd-MM-yyyy): ");
-                        newRecord.AppointmentDate = DateTime.Parse(Console.ReadLine());
-                        Console.WriteLine($"Date {newRecord.AppointmentDate:dd-MM-yyyy} has been selected.");
+                        newAppoinmentDate = DateTime.Parse(Console.ReadLine());
+                        Console.WriteLine($"Date {newAppoinmentDate:dd-MM-yyyy} has been selected.");
                     }
                     catch (Exception e)
                     {
@@ -116,7 +124,7 @@ namespace SchedulingSystem
 
                         if (Enum.IsDefined(typeof(AppointmentStatus), chooseStatus))
                         {
-                            newRecord.IsAppointment = chooseStatus == 1;
+                            changeIsAppointment = chooseStatus == 1;
                             Console.WriteLine($"Appointment status: {Enum.GetName(typeof(AppointmentStatus), chooseStatus)}");
                         }
                         else
@@ -124,17 +132,6 @@ namespace SchedulingSystem
                             Console.WriteLine("Invalid choice. Please choose 0 or 1.\n");
                             goto Status;
                         }
-
-                        //if (chooseStatus < 0 && chooseStatus > 1)
-                        //{
-                        //    Console.WriteLine("Invalid choice. Please choose 0 or 1.");
-                        //    goto Status;
-                        //}
-                        //else
-                        //{
-                        //    newRecord.IsAppointment = chooseStatus == 1;
-                        //    Console.WriteLine($"Appointment's Status has been selected.");
-                        //}
                     }
                     catch (Exception e)
                     {
@@ -142,8 +139,23 @@ namespace SchedulingSystem
                         goto Status;
                     }
                     Console.WriteLine();
-                    newRecord.NotifyRelevant("Appointment time updated");
-                    Console.WriteLine($"Appointment Record ID {newRecord.Id} was updated!");
+
+                    if (findRecord.AppointmentDate != newAppoinmentDate)
+                    {
+                        ManageDoctor.Instance.UpdateAppointment($"Datetime was changed from {findRecord.AppointmentDate} to {newAppoinmentDate}", findRecord.Doctor);
+                        ManagePatient.Instance.UpdateAppointment($"Datetime was changed from {findRecord.AppointmentDate} to {newAppoinmentDate}", findRecord.Patient);
+                        findRecord.AppointmentDate = newAppoinmentDate;
+                    }
+
+                    if (findRecord.IsAppointment != changeIsAppointment)
+                    {
+                        ManageDoctor.Instance.UpdateAppointment($"Status was changed from {findRecord.IsAppointment} to {changeIsAppointment}", findRecord.Doctor);
+                        ManagePatient.Instance.UpdateAppointment($"Status was changed from {findRecord.IsAppointment} to {changeIsAppointment}", findRecord.Patient);
+                        findRecord.IsAppointment = changeIsAppointment;
+                    }
+
+                    findRecord.NotifyRelevant("Appointment was updated");
+                    Console.WriteLine($"Appointment Record ID {findRecord.Id} was updated!");
                 }
             }
             StopScreen();
@@ -184,30 +196,40 @@ namespace SchedulingSystem
 
         public void Add()
         {
-            if (!(ManageDoctor.Instance.IsEmpty() && ManagePatient.Instance.IsEmpty()))
+            if (!ManageDoctor.Instance.IsEmpty() && !ManagePatient.Instance.IsEmpty())
             {
-                Console.WriteLine();
+            Add:
                 Console.WriteLine("========= Appointment Record Information =========");
                 AppointmentRecord appointment = (AppointmentRecord)InputInformation();
                 if (appointment == null) return;
                 lstAppointmentRecords.Add(appointment);
 
+                ManageDoctor.Instance.UpdateAppointment($"Created in appointment ID {appointment.Id} - {DateTime.Now}", appointment.Doctor);
+                ManagePatient.Instance.UpdateAppointment($"Created in appointment ID {appointment.Id} - {DateTime.Today}", appointment.Patient);
+
                 appointment.RegisterObserver(appointment.Doctor);
                 appointment.RegisterObserver(appointment.Patient);
-                appointment.NotifyRelevant("Appointment time added");
+
+                appointment.NotifyRelevant("Appointment was added");
+
                 Console.WriteLine($"Appointment Record ID: {appointment.Id}");
                 Console.WriteLine("Added successfully!");
 
                 Console.WriteLine();
                 Console.WriteLine("Do you want to continue adding a Appointment Record?");
-                if (Confirm("continue")) Add();
+                if (Confirm("continue"))
+                {
+                    Console.WriteLine();
+                    goto Add;
+                }
             }
+            StopScreen();
         }
         public bool IsEmpty()
         {
             if (lstAppointmentRecords.Count == 0)
             {
-                Console.WriteLine("List Appointment Record is empty!");
+                Console.WriteLine("Notification: List Appointment Record is empty!");
                 return true;
             }
             return false;
@@ -215,12 +237,15 @@ namespace SchedulingSystem
 
         public void Search()
         {
-            Console.WriteLine("========= Search Appointment Record =========");
-            AppointmentRecord appointment = FindAppointmentlId();
-            if (appointment != null)
+            if (!IsEmpty())
             {
-                Console.WriteLine("\nA result was found!");
-                DisplayInfor(appointment);
+                Console.WriteLine("========= Search Appointment Record =========");
+                AppointmentRecord appointment = FindAppointmentlId();
+                if (appointment != null)
+                {
+                    Console.WriteLine("\nA result was found!");
+                    DisplayInfor(appointment);
+                }
             }
             StopScreen();
         }
@@ -252,7 +277,8 @@ namespace SchedulingSystem
             try
             {
                 Console.Write("\nEnter a date [MM-dd-yyyy]: ");
-                appointmentRecord.AppointmentDate = DateTime.Parse(Console.ReadLine());
+                DateTime dateTime = DateTime.Parse(Console.ReadLine());
+                appointmentRecord.AppointmentDate = dateTime;
                 Console.WriteLine($"Date {appointmentRecord.AppointmentDate} has been selected.\n");
             }
             catch (Exception e)
@@ -316,7 +342,7 @@ namespace SchedulingSystem
             Console.Write($"Are you sure to {message}? [y/n]: ");
             string isExit = Console.ReadLine();
             if (isExit.Equals("y") || isExit.Equals("n"))
-                return isExit.Equals("y") ? true : false;
+                return isExit.Equals("y");
             Console.WriteLine("Input must be \"y\" or \"n\".");
             return Confirm(message);
         }
