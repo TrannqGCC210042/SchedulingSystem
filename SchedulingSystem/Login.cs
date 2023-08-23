@@ -8,8 +8,6 @@ namespace SchedulingSystem
 {
     internal class Login : IManageMenu
     {
-        public Login() { }
-
         public bool Confirm(string message)
         {
             throw new NotImplementedException();

@@ -11,10 +11,7 @@ namespace SchedulingSystem
         private static int nextId = 0;
         public int Id { get; private set; }
 
-        public Patient()
-        {
-            Id = ++nextId;
-        }
+        public Patient() { }
         public Patient(string name, string phone, string address, List<string> lstAppointment) : base(name, phone, address, lstAppointment)
         {
             Id = ++nextId;

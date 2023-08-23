@@ -44,10 +44,7 @@ namespace SchedulingSystem
             set { isAppointment = value; }
         }
 
-        public AppointmentRecord()
-        {
-            Id = nextId++;
-        }
+        public AppointmentRecord() { }
         public AppointmentRecord(Doctor doctor, Patient patient, DateTime appointmentDate, bool isAppointment)
         {
             Id = nextId++;

@@ -41,10 +41,10 @@ namespace SchedulingSystem
             }
         }
         public MedicalSpecialty() { }
-        public MedicalSpecialty(MedicalSpecialty medical) {
+        public MedicalSpecialty(string specialtyName, string specialtyDescription) {
             Id = ++nextId;  
-            SpecialtyName = medical.SpecialtyName;
-            SpecialtyDescription = medical.SpecialtyDescription;
+            SpecialtyName = specialtyName;
+            SpecialtyDescription = specialtyDescription;
         }
         private bool IsValidName(string name)
         {

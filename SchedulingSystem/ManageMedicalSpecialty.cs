@@ -6,13 +6,13 @@ namespace SchedulingSystem
     internal class ManageMedicalSpecialty : IManagement
     {
         private List<MedicalSpecialty> lstMedicalSpecialties;
-        public IReadOnlyCollection<MedicalSpecialty> LstMedicalSpecialties { get { return lstMedicalSpecialties.AsReadOnly(); } }
+        public IReadOnlyCollection<MedicalSpecialty> LstMedicalSpecialties { 
+            get { return lstMedicalSpecialties.AsReadOnly(); } 
+        }
         private ManageMedicalSpecialty()
         {
             if (lstMedicalSpecialties == null) lstMedicalSpecialties = new List<MedicalSpecialty>();
         }
-
-        //Singleton
         private static ManageMedicalSpecialty instance;
         private static readonly object lockObj = new object();
         public static ManageMedicalSpecialty Instance
@@ -32,7 +32,7 @@ namespace SchedulingSystem
         }
         public void Delete()
         {
-            Console.WriteLine("========= Delete Medical Specialty =========");
+            Console.WriteLine("===== Delete Medical Specialty =====");
             if (!IsEmpty())
             {
                 MedicalSpecialty medicalRemoved = FindMedicalId();
@@ -51,18 +51,18 @@ namespace SchedulingSystem
 
         public void Update()
         {
-            Console.WriteLine("========= Update Medical Specialty =========");
+            Console.WriteLine("===== Update Medical Specialty =====");
             if (!IsEmpty())
             {
                 MedicalSpecialty findMedical = FindMedicalId();
                 if (findMedical != null)
                 {
                     DisplayInfor(findMedical);
-                    Console.WriteLine("\nEnter changes:");
+                    Console.WriteLine("Enter changes:");
                     MedicalSpecialty newMedical = (MedicalSpecialty)InputInformation();
                     findMedical.SpecialtyName = newMedical.SpecialtyName;
                     findMedical.SpecialtyDescription = newMedical.SpecialtyDescription;
-                    Console.WriteLine($"Medical Specialty ID {newMedical.Id} was updated!");
+                    Console.WriteLine($"Medical Specialty ID {findMedical.Id} was updated!");
                 }
             }
             StopScreen();
@@ -86,9 +86,9 @@ namespace SchedulingSystem
                 Console.WriteLine($"Medical Specialty ID \"{id}\" cannot exist in the system.\n");
                 goto FindID;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Medical Specialty ID must be a number.");
                 Console.WriteLine();
                 goto FindID;
             }
@@ -103,16 +103,14 @@ namespace SchedulingSystem
 
         public void Add()
         {
-            Console.WriteLine();
-            Console.WriteLine("========= Medical Specialtie Information =========");
+            Console.WriteLine("===== Medical Specialty Information =====");
             MedicalSpecialty createMedical = (MedicalSpecialty)InputInformation();
-            lstMedicalSpecialties.Add(createMedical);
-            Console.WriteLine("Added successfully!");
-            Console.WriteLine($"Medical Specialty ID: {createMedical.Id}");
-
-            Console.WriteLine();
-            Console.WriteLine("Do you want to continue adding a Medical Specialty?");
-            if (Confirm("continue")) {
+            lstMedicalSpecialties.Add(new MedicalSpecialty(
+                createMedical.SpecialtyName, createMedical.SpecialtyDescription));
+            Console.Write("Added successfully!");
+            Console.WriteLine($"Your Medical Specialty ID has been provided: " +
+                $"{lstMedicalSpecialties[lstMedicalSpecialties.Count - 1].Id}\n");
+            if (Confirm("continue adding a Medical Specialty")) {
                 Console.WriteLine();
                 Add();
             }
@@ -135,7 +133,7 @@ namespace SchedulingSystem
 
             if (!IsEmpty())
             {
-                Console.WriteLine("========= All Medical Specialties =========");
+                Console.WriteLine("===== All Medical Specialties =====");
                 foreach (var medical in lstMedicalSpecialties)
                 {
                     Console.WriteLine($"Medical Specialty ID: {medical.Id}");
@@ -161,7 +159,7 @@ namespace SchedulingSystem
         {
             if (!IsEmpty())
             {
-                Console.WriteLine("========= Search Medical Specialty =========");
+                Console.WriteLine("===== Search Medical Specialty =====");
                 MedicalSpecialty result = FindMedicalId();
                 if (result != null)
                 {
@@ -199,7 +197,7 @@ namespace SchedulingSystem
                 goto Description;
             }
 
-            return new MedicalSpecialty(inputMedical);
+            return inputMedical;
         }
 
         public bool Confirm(string message)

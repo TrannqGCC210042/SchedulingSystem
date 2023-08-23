@@ -100,9 +100,9 @@ namespace SchedulingSystem
                 Console.WriteLine("Cannot find this Patient ID!\n");
                 return FindPatientId();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message + "\n");
+                Console.WriteLine("Patient ID must be a number.\n");
                 goto Id;
             }
         }
@@ -123,14 +123,11 @@ namespace SchedulingSystem
             {
                 $"Created at {DateTime.Now}"
             };
-
-            lstPatients.Add(patient);
+            lstPatients.Add(new Patient(patient.Name, patient.Phone, patient.Address, patient.LstAppointment));
             Console.WriteLine("Added successfully!");
-            Console.WriteLine($"Patient ID was added: {patient.Id}");
-
-            Console.WriteLine();
-            Console.WriteLine("Do you want to continue adding a Patient?");
-            if (Confirm("continue"))
+            Console.WriteLine($"Your Patient ID has been provided: " +
+                            $"{lstPatients[lstPatients.Count - 1].Id}\n");
+            if (Confirm("continue adding a Patient"))
             {
                 Console.WriteLine();
                 Add();
@@ -225,9 +222,9 @@ namespace SchedulingSystem
                 Console.Write("Patient Phone: ");
                 patient.Phone = Console.ReadLine();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Phone number must be 10 digits.");
                 goto Phone;
             }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchedulingSystem
 {
@@ -14,7 +11,10 @@ namespace SchedulingSystem
             Confirmed
         }
         private static List<AppointmentRecord> lstAppointmentRecords;
-        public IReadOnlyCollection<AppointmentRecord> LstAppointmentRecords { get { return lstAppointmentRecords.AsReadOnly(); } }
+        public IReadOnlyCollection<AppointmentRecord> LstAppointmentRecords
+        {
+            get { return lstAppointmentRecords.AsReadOnly(); }
+        }
         private ManageAppointmentRecord()
         {
             if (lstAppointmentRecords == null) lstAppointmentRecords = new List<AppointmentRecord>();
@@ -50,7 +50,7 @@ namespace SchedulingSystem
                         ManageDoctor.Instance.UpdateAppointment($"Removed in appointment ID {appointment.Id} - {DateTime.Now}", appointment.Doctor);
                         ManagePatient.Instance.UpdateAppointment($"Removed in appointment ID {appointment.Id} - {DateTime.Today}", appointment.Patient);
 
-                        appointment.NotifyRelevant("Appointment was canceled.");
+                        appointment.NotifyRelevant($"Removed in appointment ID {appointment.Id} - {DateTime.Today}");
 
                         appointment.RemoveObserver(appointment.Doctor);
                         appointment.RemoveObserver(appointment.Patient);
@@ -97,16 +97,23 @@ namespace SchedulingSystem
                     Console.WriteLine("\nEnter changes:");
                     DateTime newAppoinmentDate;
                     bool changeIsAppointment;
+
                 DateTime:
                     try
                     {
-                        Console.Write("Enter a date (dd-MM-yyyy): ");
+                        Console.Write("Enter a date: ");
                         newAppoinmentDate = DateTime.Parse(Console.ReadLine());
-                        Console.WriteLine($"Date {newAppoinmentDate:dd-MM-yyyy} has been selected.");
+                        if (newAppoinmentDate < DateTime.Now)
+                        {
+                            Console.WriteLine($"Cannot enter a day later than today.");
+                            Console.WriteLine();
+                            goto DateTime;
+                        }
+                        Console.WriteLine($"Date {newAppoinmentDate:dddd, dd MMMM yyyy} has been selected.");
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e.Message);
+                        Console.WriteLine($"Date is invalid format!");
                         Console.WriteLine();
                         goto DateTime;
                     }
@@ -133,9 +140,9 @@ namespace SchedulingSystem
                             goto Status;
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine($"{e.Message}");
+                        Console.WriteLine("Invalid choice. Please choose 0 or 1.");
                         goto Status;
                     }
                     Console.WriteLine();
@@ -149,11 +156,18 @@ namespace SchedulingSystem
 
                     if (findRecord.IsAppointment != changeIsAppointment)
                     {
-                        ManageDoctor.Instance.UpdateAppointment($"Status was changed from {findRecord.IsAppointment} to {changeIsAppointment}", findRecord.Doctor);
-                        ManagePatient.Instance.UpdateAppointment($"Status was changed from {findRecord.IsAppointment} to {changeIsAppointment}", findRecord.Patient);
+                        if (findRecord.IsAppointment)
+                        {
+                            ManageDoctor.Instance.UpdateAppointment($"Status was changed from confirm to watiting confirm", findRecord.Doctor);
+                            ManagePatient.Instance.UpdateAppointment($"Status was changed from confirm to watiting confirm", findRecord.Patient);
+                        }
+                        else
+                        {
+                            ManageDoctor.Instance.UpdateAppointment($"Status was changed from watiting confirm to confirm", findRecord.Doctor);
+                            ManagePatient.Instance.UpdateAppointment($"Status was changed from watiting confirm to confirm", findRecord.Patient);
+                        }
                         findRecord.IsAppointment = changeIsAppointment;
                     }
-
                     findRecord.NotifyRelevant("Appointment was updated");
                     Console.WriteLine($"Appointment Record ID {findRecord.Id} was updated!");
                 }
@@ -179,9 +193,9 @@ namespace SchedulingSystem
                 Console.WriteLine($"The Appointment Record ID {id} does not exist in the system.\n");
                 return FindAppointmentlId();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Appointment Record ID must be a number.");
                 Console.WriteLine();
                 return FindAppointmentlId();
             }
@@ -202,28 +216,27 @@ namespace SchedulingSystem
                 Console.WriteLine("========= Appointment Record Information =========");
                 AppointmentRecord appointment = (AppointmentRecord)InputInformation();
                 if (appointment == null) return;
-                lstAppointmentRecords.Add(appointment);
+                lstAppointmentRecords.Add(new AppointmentRecord(appointment.Doctor,
+                    appointment.Patient, appointment.AppointmentDate, appointment.IsAppointment));
 
-                ManageDoctor.Instance.UpdateAppointment($"Created in appointment ID {appointment.Id} - {DateTime.Now}", appointment.Doctor);
-                ManagePatient.Instance.UpdateAppointment($"Created in appointment ID {appointment.Id} - {DateTime.Today}", appointment.Patient);
+                int getLastId = lstAppointmentRecords[lstAppointmentRecords.Count - 1].Id;
+                ManageDoctor.Instance.UpdateAppointment(
+                    $"Created in appointment ID {getLastId} - {DateTime.Now}", appointment.Doctor);
+                ManagePatient.Instance.UpdateAppointment(
+                    $"Created in appointment ID {getLastId} - {DateTime.Today}", appointment.Patient);
 
                 appointment.RegisterObserver(appointment.Doctor);
                 appointment.RegisterObserver(appointment.Patient);
+                appointment.NotifyRelevant($"Created in appointment ID {getLastId}");
 
-                appointment.NotifyRelevant("Appointment was added");
-
-                Console.WriteLine($"Appointment Record ID: {appointment.Id}");
                 Console.WriteLine("Added successfully!");
-
-                Console.WriteLine();
-                Console.WriteLine("Do you want to continue adding a Appointment Record?");
-                if (Confirm("continue"))
+                Console.WriteLine($"Your Appointment Record ID has been provided: {getLastId}\n");
+                if (Confirm("continue adding a Appointment Record"))
                 {
                     Console.WriteLine();
                     goto Add;
                 }
             }
-            StopScreen();
         }
         public bool IsEmpty()
         {
@@ -276,14 +289,14 @@ namespace SchedulingSystem
         DateTime:
             try
             {
-                Console.Write("\nEnter a date [MM-dd-yyyy]: ");
+                Console.Write("\nEnter a date: ");
                 DateTime dateTime = DateTime.Parse(Console.ReadLine());
                 appointmentRecord.AppointmentDate = dateTime;
-                Console.WriteLine($"Date {appointmentRecord.AppointmentDate} has been selected.\n");
+                Console.WriteLine($"Date {appointmentRecord.AppointmentDate:dddd, dd MMMM yyyy} has been selected.\n");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine($"{e.Message}");
+                Console.WriteLine($"Invalid date format!");
                 goto DateTime;
             }
             appointmentRecord.IsAppointment = false;
@@ -310,7 +323,7 @@ namespace SchedulingSystem
             DisplayInfor(a.Doctor);
             Console.WriteLine($"Patient:");
             DisplayInfor(a.Patient);
-            Console.WriteLine($"Date: {a.AppointmentDate}");
+            Console.WriteLine($"Date: {a.AppointmentDate:dddd, dd MMMM yyyy}");
             Console.Write("Status: ");
             if (a.IsAppointment) Console.WriteLine("Confirmed");
             else Console.WriteLine("Waiting confirm");
@@ -327,7 +340,7 @@ namespace SchedulingSystem
                     DisplayInfor(a.Doctor);
                     Console.WriteLine($"Patient Information:");
                     DisplayInfor(a.Patient);
-                    Console.WriteLine($"Date time: {a.AppointmentDate}");
+                    Console.WriteLine($"Date time: {a.AppointmentDate.ToString("dddd, dd MMMM yyyy")}");
                     Console.Write("Status: ");
                     if (a.IsAppointment) Console.WriteLine("Confirmed");
                     else Console.WriteLine("Waiting confirm");

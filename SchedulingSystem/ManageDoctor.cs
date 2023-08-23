@@ -32,13 +32,13 @@ namespace SchedulingSystem
             get { return lstDoctors; }
             set { lstDoctors = value; }
         }
-        // public IReadOnlyCollection<Doctor> LstDoctors { get { return lstDoctors.AsReadOnly(); } }
+        public IReadOnlyCollection<Doctor> LstDoctor { get { return lstDoctors.AsReadOnly(); } }
         private ManageDoctor()
         {
             if (lstDoctors == null) lstDoctors = new List<Doctor>();
         }
 
-        public void UpdateAppointment(string message, Doctor doctor)
+        public void UpdateAppointment(string message, Doctor doctor)    
         {
             doctor.LstAppointment.Add(message);
         }
@@ -116,9 +116,9 @@ namespace SchedulingSystem
                 Console.Write("Doctor Phone: ");
                 doctor.Phone = Console.ReadLine();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Phone number must be 10 digits.");
                 goto Phone;
             }
 
@@ -155,9 +155,9 @@ namespace SchedulingSystem
                 Console.WriteLine("Doctor ID cannot exist in the system.\n");
                 return FindDoctorId();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message + "\n");
+                Console.WriteLine("Doctor ID must be a number.\n");
                 goto Id;
             }
         }
@@ -181,26 +181,21 @@ namespace SchedulingSystem
 
         public void Add()
         {
-            Console.WriteLine();
             Console.WriteLine("========= Doctor Information =========");
             Doctor doctor = (Doctor)InputInformation();
             doctor.LstAppointment = new List<string>
             {
                 $"Created at {DateTime.Now}"
             };
-
-            lstDoctors.Add(doctor);
+            lstDoctors.Add(new Doctor(doctor.Name, doctor.Phone, doctor.Address, doctor.LstAppointment));
             Console.WriteLine("Added successfully!");
-            Console.WriteLine($"Doctor ID was added: {doctor.Id}");
-
-            Console.WriteLine();
-            Console.WriteLine("Do you want to continue adding a Doctor?");
-            if (Confirm("continue"))
+            Console.WriteLine($"Your Doctor ID has been provided: " +
+                $"{lstDoctors[lstDoctors.Count - 1].Id}\n");
+            if (Confirm("continue adding a Doctor"))
             {
                 Console.WriteLine();
                 Add();
             }
-
         }
 
         public void DisplayInfor()

@@ -10,7 +10,7 @@ namespace SchedulingSystem
     {        
         public void PrintMenu()
         {
-            Console.WriteLine("========= Manage Medical Specialty =========");
+            Console.WriteLine("===== Manage Medical Specialty =====");
             Console.WriteLine("0. [Return menu]");
             Console.WriteLine("1. Add Medical Specialty");
             Console.WriteLine("2. Update Medical Specialty");

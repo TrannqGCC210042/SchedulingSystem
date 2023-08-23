@@ -8,7 +8,6 @@ namespace SchedulingSystem
 {
     internal class MainMenu : IManageMenu
     {
-        public MainMenu() { }
         public void PrintMenu()
         {
             Console.WriteLine("Appointment Booking System Menu");
@@ -20,6 +19,18 @@ namespace SchedulingSystem
             Console.WriteLine("4. Manage Medical Specialties");
         }
 
+        public bool Confirm(string message)
+        {
+            Console.Write($"Are you sure to {message}? [y/n]: ");
+            string isExit = Console.ReadLine();
+            if (isExit.Equals("y") || isExit.Equals("n"))
+            {
+                return isExit.Equals("y");
+            }
+            Console.WriteLine("Input must be \"y\" or \"n\".");
+            return Confirm(message);
+        }
+
         public string SelectMenu()
         {
             Console.Write("Please enter your choice: ");
@@ -29,7 +40,7 @@ namespace SchedulingSystem
             {
                 case "0":
                     if (Confirm("return")) Environment.Exit(0);
-                    break;
+                    break;  
                 case "1":
                     return "managedoctor";
                 case "2":
@@ -45,31 +56,6 @@ namespace SchedulingSystem
                     break;
             }
             return checkExit;
-        }
-        public bool Confirm(string message)
-        {
-            bool checkContinue = false;
-            string isExit = "";
-            while (!isExit.Equals("y") || !isExit.Equals("y"))
-            {
-                Console.Write($"Are you sure to {message}? [y/n]: ");
-                isExit = Console.ReadLine();
-
-                if (isExit.Equals("y"))
-                {
-                    checkContinue = true;
-                    break;
-                }
-                else if (isExit.Equals("n"))
-                {
-                    break;
-                }
-                else
-                    Console.WriteLine("Input must be \"y\" or \"n\".");
-            }
-
-            Console.Clear();
-            return checkContinue;
         }
     }
 }
